@@ -688,22 +688,30 @@ function onDeckClick(){
   // 즉시 클릭 비활성화 (중복 실행 방지)
   wrap.style.pointerEvents='none';
   wrap.onclick=null;
-  playShuffle();
+  // 모바일: 첫 터치일 수 있으므로 unlock 먼저 실행 후 소리
+  unlockAudio();
+  setTimeout(function(){ playShuffle(); }, 80);
   wrap.style.animation='shake .65s ease-in-out';
+  // 글자 겹침 방지: 순차적으로 딜레이 고정
   setTimeout(function(){
-    setTxt(cta, hint, 'CONNECTING...', '당신의 에너지와 연결 중입니다', function(){
-      setTxt(cta, hint, 'READING...', '질문의 기운을 읽고 있습니다', function(){
-        setTxt(cta, hint, 'CARDS READY ✦', '운명의 카드가 준비되었습니다', null);
-      });
-    });
+    cta.style.opacity='0'; hint.style.opacity='0';
+    setTimeout(function(){ cta.textContent='CONNECTING...'; hint.textContent='당신의 에너지와 연결 중입니다'; cta.style.opacity='1'; hint.style.opacity='1'; }, 300);
   }, 200);
+  setTimeout(function(){
+    cta.style.opacity='0'; hint.style.opacity='0';
+    setTimeout(function(){ cta.textContent='READING...'; hint.textContent='질문의 기운을 읽고 있습니다'; cta.style.opacity='1'; hint.style.opacity='1'; }, 300);
+  }, 1150);
+  setTimeout(function(){
+    cta.style.opacity='0'; hint.style.opacity='0';
+    setTimeout(function(){ cta.textContent='CARDS READY ✦'; hint.textContent='운명의 카드가 준비되었습니다'; cta.style.opacity='1'; hint.style.opacity='1'; }, 300);
+  }, 2000);
   setTimeout(function(){
     playSpread();
     document.getElementById('deck-area').style.display='none';
     document.getElementById('board-sub').textContent='마음이 이끄는 카드를 2장 선택해주세요';
     document.getElementById('prog-wrap').style.display='flex';
     renderCards();
-  }, 2400);
+  }, 2900);
 }
 
 function makeFront(name,suit){
@@ -779,7 +787,7 @@ function renderCards(){
     el.addEventListener('click',function(){
       if(el.classList.contains('flipped')||el.classList.contains('dim'))return;
       if(document.querySelectorAll('.tc.flipped').length>=2)return;
-      playFlip(); el.classList.add('flipped'); updateProg();
+      unlockAudio(); setTimeout(function(){ playFlip(); },50); el.classList.add('flipped'); updateProg();
     });
     el.addEventListener('animationend',function(){el.classList.remove('sp');el.classList.add('rdy');},{once:true});
     grid.appendChild(el);
