@@ -89,7 +89,7 @@ input[type=password]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(167
 .bsub{font-size:.88rem;color:var(--mut);text-align:center;letter-spacing:.04em;margin-bottom:20px}
 /* DECK */
 .deck-area{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;flex:1;min-height:0}
-.deck-wrap{position:relative;width:160px;height:256px;cursor:pointer;margin-bottom:28px;filter:drop-shadow(0 0 28px rgba(124,58,237,.65));animation:df 3s ease-in-out infinite;transition:filter .3s;background:none!important;border:none!important;outline:none!important;box-shadow:none!important;overflow:visible;border-radius:0}
+.deck-wrap{position:relative;width:160px;height:256px;cursor:pointer;margin-bottom:28px;filter:drop-shadow(0 0 28px rgba(124,58,237,.65));animation:df 3s ease-in-out infinite;transition:filter .3s;background:#2a1f5e!important;border:none!important;outline:none!important;box-shadow:none!important;overflow:hidden;border-radius:14px}
 .deck-wrap:hover{filter:drop-shadow(0 0 44px rgba(167,139,250,.9))}
 @keyframes df{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .dcta{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--acc);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;text-align:center;min-height:1.4em;display:block}
@@ -852,13 +852,15 @@ function updateProg(){
 
 function showDone(){
   var grid=document.getElementById('card-grid');
+  // display:none 전에 미리 뒤집힌 카드 수집
+  var flippedCards=Array.prototype.slice.call(document.querySelectorAll('.tc.flipped'));
   grid.style.opacity='0';
   document.getElementById('prog-wrap').style.opacity='0';
   setTimeout(function(){
     grid.style.display='none';
     document.getElementById('prog-wrap').style.display='none';
     var row=document.getElementById('done-row');row.innerHTML='';
-    document.querySelectorAll('.tc.flipped').forEach(function(card){
+    flippedCards.forEach(function(card){
       var wrap=document.createElement('div');wrap.className='done-card';
       // --sc를 style 지우기 전에 먼저 저장
       var sc = card.style.getPropertyValue('--sc').trim();
