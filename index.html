@@ -81,18 +81,18 @@ input[type=password]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(167
 .lbtns{display:flex;gap:6px}
 .lbtns .btn{font-size:.65rem;padding:6px 10px}
 /* BOARD */
-#page-board{justify-content:flex-start;padding:24px 14px 60px}
+#page-board{justify-content:flex-start;padding:16px 10px 32px}
 .timer-bar{display:none;align-items:center;justify-content:center;gap:6px;padding:5px 14px;background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.2);border-radius:30px;font-family:'DM Mono',monospace;font-size:.7rem;color:var(--neon);letter-spacing:.1em;margin-bottom:14px;transition:all .3s}
 .timer-bar.urgent{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.35);color:#fca5a5;animation:up 1s ease-in-out infinite}
 @keyframes up{0%,100%{opacity:1}50%{opacity:.6}}
 .btitle{font-family:'Bebas Neue',cursive;font-size:clamp(1.8rem,6vw,2.6rem);letter-spacing:.08em;text-align:center;margin-bottom:4px}
 .bsub{font-size:.88rem;color:var(--mut);text-align:center;letter-spacing:.04em;margin-bottom:20px}
 /* DECK */
-.deck-area{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;flex:1;min-height:65vh}
+.deck-area{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;flex:1;min-height:0}
 .deck-wrap{position:relative;width:160px;height:256px;cursor:pointer;margin-bottom:28px;filter:drop-shadow(0 0 28px rgba(124,58,237,.65));animation:df 3s ease-in-out infinite;transition:filter .3s;background:none!important;border:none!important;outline:none!important;box-shadow:none!important;overflow:hidden;border-radius:14px}
 .deck-wrap:hover{filter:drop-shadow(0 0 44px rgba(167,139,250,.9))}
 @keyframes df{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.dcta{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--acc);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;animation:pulse 2s ease-in-out infinite;text-align:center;min-height:1.4em;display:block}
+.dcta{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--acc);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;text-align:center;min-height:1.4em;display:block}
 .dhint{font-size:.95rem;color:var(--txt);opacity:.65;text-align:center;padding:0 24px;min-height:1.6em;display:block}
 @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
 /* PROGRESS */
@@ -100,7 +100,7 @@ input[type=password]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(167
 .pdot{width:9px;height:9px;border-radius:50%;background:rgba(167,139,250,.25);transition:all .3s}
 .pdot.on{background:#c4b5fd;box-shadow:0 0 10px rgba(196,181,253,.8);transform:scale(1.3)}
 /* CARDS */
-.card-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:600px;width:100%;opacity:0;transition:opacity .4s}
+.card-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:500px;width:100%;opacity:0;transition:opacity .4s;padding:0 8px}
 .card-grid.show{opacity:1}
 @media(max-width:480px){.card-grid{gap:6px}}
 .tc{aspect-ratio:130/210;border-radius:12px;cursor:pointer;position:relative;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,0,.2,1),box-shadow .3s;box-shadow:0 0 0 1px rgba(255,255,255,.2),0 6px 20px rgba(0,0,0,.6);opacity:0}
@@ -365,102 +365,59 @@ var currentCards=[];
 var deckDone=false;
 var ctx=null;
 
-// AUDIO - 웹/모바일 모두 호환
-var AC = null;
-var AC_UNLOCKED = false;
+// AUDIO - iOS/Android/Web 모두 호환
+// AudioContext를 터치 이벤트 핸들러 내에서 직접 생성하고 즉시 사용
+var _ac = null;
 
-// AudioContext는 항상 터치/클릭 이벤트 안에서만 생성 (모바일 정책)
-function getAC() {
-  if (!AC) {
-    try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+function _getAC() {
+  if (!_ac) {
+    try { _ac = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return null; }
   }
-  return AC;
+  return _ac;
 }
 
-// 터치/클릭 시 호출 - Context 생성 + 묵음재생 + resume 한번에
 function unlockAudio() {
-  if (AC_UNLOCKED) return;
+  var ac = _getAC();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume();
+  // 묵음 재생으로 잠금 해제
   try {
-    // Context가 없으면 이 시점(터치 이벤트 안)에서 생성
-    if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
-    // 묵음 버퍼로 즉시 unlock
-    var buf = AC.createBuffer(1, 1, 22050);
-    var src = AC.createBufferSource();
-    src.buffer = buf;
-    src.connect(AC.destination);
-    src.start(0);
-    // suspended 상태면 resume
-    if (AC.state === 'suspended') {
-      AC.resume().then(function() { AC_UNLOCKED = true; });
-    } else {
-      AC_UNLOCKED = true;
-    }
+    var b = ac.createBuffer(1,1,22050);
+    var s = ac.createBufferSource();
+    s.buffer = b; s.connect(ac.destination); s.start(0);
   } catch(e) {}
 }
 
-function playSound(fn) {
-  if (!AC) return; // unlock 전에는 무시
-  if (AC.state === 'suspended') {
-    AC.resume().then(function() { try { fn(AC); } catch(e) {} });
-  } else {
-    try { fn(AC); } catch(e) {}
-  }
-}
-
-function tone(c, freq, vol, start, dur) {
+function _tone(ac, freq, vol, start, dur) {
   try {
-    var o = c.createOscillator();
-    var g = c.createGain();
-    o.frequency.value = freq;
-    o.type = 'sine';
-    var t = c.currentTime;
-    g.gain.setValueAtTime(0, t + start);
-    g.gain.linearRampToValueAtTime(vol, t + start + 0.005);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + start + dur);
-    o.connect(g); g.connect(c.destination);
-    o.start(t + start);
-    o.stop(t + start + dur + 0.05);
+    var o = ac.createOscillator(), g = ac.createGain();
+    var t = ac.currentTime;
+    o.type = 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t+start);
+    g.gain.linearRampToValueAtTime(vol, t+start+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+start+dur);
+    o.connect(g); g.connect(ac.destination);
+    o.start(t+start); o.stop(t+start+dur+0.05);
   } catch(e) {}
 }
 
-function playShuffle() {
-  playSound(function(c) {
-    for (var i = 0; i < 8; i++) tone(c, 300+i*50, 0.18, i*0.06, 0.08);
-  });
-}
-function playSpread() {
-  playSound(function(c) {
-    tone(c, 261, 0.22, 0, 0.5);
-    tone(c, 329, 0.18, 0.1, 0.4);
-    tone(c, 392, 0.18, 0.2, 0.4);
-    tone(c, 523, 0.15, 0.3, 0.5);
-  });
-}
-function playFlip() {
-  playSound(function(c) {
-    tone(c, 800, 0.25, 0, 0.05);
-    tone(c, 1000, 0.2, 0.04, 0.08);
-    tone(c, 1200, 0.18, 0.08, 0.15);
-  });
-}
-function playDone() {
-  playSound(function(c) {
-    tone(c, 523, 0.25, 0, 0.3);
-    tone(c, 659, 0.25, 0.18, 0.3);
-    tone(c, 784, 0.28, 0.36, 0.5);
-  });
+function _play(fn) {
+  var ac = _getAC();
+  if (!ac) return;
+  var run = function(){ fn(ac); };
+  if (ac.state === 'suspended') { ac.resume().then(run).catch(function(){}); }
+  else { try { run(); } catch(e) {} }
 }
 
-// 모든 터치/클릭에서 unlock 시도 (once 제거 - 혹시 실패해도 재시도)
-document.addEventListener('touchstart', unlockAudio, {passive: true});
+function playShuffle(){ _play(function(ac){ for(var i=0;i<8;i++) _tone(ac,300+i*50,0.15,i*0.07,0.09); }); }
+function playSpread(){ _play(function(ac){ _tone(ac,261,0.2,0,0.5); _tone(ac,329,0.16,0.1,0.4); _tone(ac,392,0.16,0.2,0.4); _tone(ac,523,0.13,0.3,0.5); }); }
+function playFlip(){ _play(function(ac){ _tone(ac,700,0.2,0,0.05); _tone(ac,900,0.17,0.04,0.08); _tone(ac,1100,0.15,0.08,0.12); }); }
+function playDone(){ _play(function(ac){ _tone(ac,523,0.2,0,0.3); _tone(ac,659,0.2,0.2,0.3); _tone(ac,784,0.23,0.4,0.5); }); }
+
+// 페이지 로드 후 첫 인터랙션에서 unlock
+document.addEventListener('touchstart', unlockAudio, {passive:true});
 document.addEventListener('click', unlockAudio);
-
-
-
-
-
-
-
+document.addEventListener('touchend', unlockAudio, {passive:true});
 
 (function(){
   var c=document.getElementById('stars');
@@ -693,19 +650,22 @@ function onDeckClick(){
   var hint=document.getElementById('dhint');
   wrap.style.pointerEvents='none';
   wrap.onclick=null;
+  // visibility로 텍스트 교체 (겹침 완전 방지)
+  function setMsg(c,h){ cta.style.visibility='hidden'; hint.style.visibility='hidden'; setTimeout(function(){ cta.textContent=c; hint.textContent=h; cta.style.visibility='visible'; hint.style.visibility='visible'; },50); }
+  // 오디오: unlock 즉시 + 충분한 딜레이 후 재생
   unlockAudio();
-  setTimeout(function(){ playShuffle(); }, 200);
+  setTimeout(function(){ playShuffle(); }, 250);
   wrap.style.animation='shake .65s ease-in-out';
-  setTimeout(function(){ cta.textContent='CONNECTING...'; hint.textContent='당신의 에너지와 연결 중입니다'; }, 300);
-  setTimeout(function(){ cta.textContent='READING...'; hint.textContent='질문의 기운을 읽고 있습니다'; }, 1200);
-  setTimeout(function(){ cta.textContent='CARDS READY ✦'; hint.textContent='운명의 카드가 준비되었습니다'; }, 2100);
+  setTimeout(function(){ setMsg('CONNECTING...','당신의 에너지와 연결 중입니다'); }, 400);
+  setTimeout(function(){ setMsg('READING...','질문의 기운을 읽고 있습니다'); }, 1300);
+  setTimeout(function(){ setMsg('CARDS READY ✦','운명의 카드가 준비되었습니다'); }, 2200);
   setTimeout(function(){
     playSpread();
     document.getElementById('deck-area').style.display='none';
     document.getElementById('board-sub').textContent='마음이 이끄는 카드를 2장 선택해주세요';
     document.getElementById('prog-wrap').style.display='flex';
     renderCards();
-  }, 2900);
+  }, 3000);
 }
 
 function makeFront(name,suit){
@@ -713,73 +673,101 @@ function makeFront(name,suit){
   var bgs={Major:'#120a2e',Wands:'#1a0800',Cups:'#000d1a',Swords:'#08090f',Pentacles:'#001508'};
   var bg=bgs[suit]||'#120a2e';
 
-  // 수트별 완전히 다른 배경 패턴
+  // 카드별 고유 숫자/계급 심볼 결정
+  var rankMap={
+    'Ace':'I','Two':'II','Three':'III','Four':'IV','Five':'V',
+    'Six':'VI','Seven':'VII','Eight':'VIII','Nine':'IX','Ten':'X',
+    'Page':'XI','Knight':'XII','Queen':'XIII','King':'XIV'
+  };
+  var cardRank='';
+  var cardDots=0; // 숫자 카드용 점 개수
+  Object.keys(rankMap).forEach(function(k){
+    if(name.indexOf(k)>=0){ cardRank=rankMap[k]; }
+  });
+  // Ace~Ten은 점으로 표현
+  var numMap={'Ace':1,'Two':2,'Three':3,'Four':4,'Five':5,'Six':6,'Seven':7,'Eight':8,'Nine':9,'Ten':10};
+  Object.keys(numMap).forEach(function(k){ if(name.indexOf(k)>=0) cardDots=numMap[k]; });
+
+  // 수트별 배경 패턴
   var pattern='';
   if(suit==='Major'){
-    // 별자리 패턴
     pattern='<circle cx="20" cy="25" r="1.2" fill="'+col+'" fill-opacity=".3"/>'
       +'<circle cx="40" cy="15" r="0.8" fill="'+col+'" fill-opacity=".25"/>'
       +'<circle cx="100" cy="30" r="1" fill="'+col+'" fill-opacity=".28"/>'
       +'<circle cx="115" cy="18" r="1.3" fill="'+col+'" fill-opacity=".22"/>'
-      +'<circle cx="18" cy="185" r="1" fill="'+col+'" fill-opacity=".25"/>'
-      +'<circle cx="108" cy="190" r="1.2" fill="'+col+'" fill-opacity=".2"/>'
       +'<line x1="20" y1="25" x2="40" y2="15" stroke="'+col+'" stroke-width=".4" stroke-opacity=".15"/>'
       +'<line x1="40" y1="15" x2="100" y2="30" stroke="'+col+'" stroke-width=".4" stroke-opacity=".15"/>'
       +'<line x1="100" y1="30" x2="115" y2="18" stroke="'+col+'" stroke-width=".4" stroke-opacity=".15"/>';
   } else if(suit==='Wands'){
-    // 불꽃/사선 패턴
-    pattern='<line x1="0" y1="40" x2="30" y2="0" stroke="'+col+'" stroke-width=".6" stroke-opacity=".12"/>'
-      +'<line x1="20" y1="40" x2="50" y2="0" stroke="'+col+'" stroke-width=".6" stroke-opacity=".1"/>'
-      +'<line x1="100" y1="210" x2="130" y2="170" stroke="'+col+'" stroke-width=".6" stroke-opacity=".12"/>'
-      +'<line x1="80" y1="210" x2="110" y2="170" stroke="'+col+'" stroke-width=".6" stroke-opacity=".1"/>'
-      +'<circle cx="65" cy="25" r="6" fill="none" stroke="'+col+'" stroke-width=".8" stroke-opacity=".2"/>'
-      +'<circle cx="65" cy="25" r="3" fill="'+col+'" fill-opacity=".15"/>';
+    pattern='<line x1="0" y1="40" x2="30" y2="0" stroke="'+col+'" stroke-width=".6" stroke-opacity=".1"/>'
+      +'<line x1="25" y1="40" x2="55" y2="0" stroke="'+col+'" stroke-width=".6" stroke-opacity=".08"/>'
+      +'<line x1="100" y1="210" x2="130" y2="170" stroke="'+col+'" stroke-width=".6" stroke-opacity=".1"/>'
+      +'<line x1="75" y1="210" x2="105" y2="170" stroke="'+col+'" stroke-width=".6" stroke-opacity=".08"/>';
   } else if(suit==='Cups'){
-    // 물결/원 패턴
-    pattern='<path d="M10,40 Q32,30 54,40 Q76,50 98,40 Q120,30 130,35" fill="none" stroke="'+col+'" stroke-width=".7" stroke-opacity=".15"/>'
-      +'<path d="M10,55 Q32,45 54,55 Q76,65 98,55 Q120,45 130,50" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".1"/>'
-      +'<path d="M10,170 Q32,160 54,170 Q76,180 98,170 Q120,160 130,165" fill="none" stroke="'+col+'" stroke-width=".7" stroke-opacity=".15"/>'
-      +'<circle cx="65" cy="22" r="8" fill="none" stroke="'+col+'" stroke-width=".8" stroke-opacity=".2"/>';
+    pattern='<path d="M10,38 Q32,28 54,38 Q76,48 98,38 Q120,28 130,33" fill="none" stroke="'+col+'" stroke-width=".7" stroke-opacity=".14"/>'
+      +'<path d="M10,52 Q32,42 54,52 Q76,62 98,52 Q120,42 130,47" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".09"/>'
+      +'<path d="M10,175 Q32,165 54,175 Q76,185 98,175 Q120,165 130,170" fill="none" stroke="'+col+'" stroke-width=".7" stroke-opacity=".14"/>';
   } else if(suit==='Swords'){
-    // 격자/십자 패턴
-    pattern='<line x1="0" y1="0" x2="130" y2="210" stroke="'+col+'" stroke-width=".5" stroke-opacity=".08"/>'
-      +'<line x1="130" y1="0" x2="0" y2="210" stroke="'+col+'" stroke-width=".5" stroke-opacity=".08"/>'
-      +'<rect x="52" y="12" width="26" height="26" fill="none" stroke="'+col+'" stroke-width=".7" stroke-opacity=".2" transform="rotate(45 65 25)"/>';
+    pattern='<line x1="0" y1="0" x2="130" y2="210" stroke="'+col+'" stroke-width=".4" stroke-opacity=".07"/>'
+      +'<line x1="130" y1="0" x2="0" y2="210" stroke="'+col+'" stroke-width=".4" stroke-opacity=".07"/>'
+      +'<line x1="65" y1="0" x2="65" y2="210" stroke="'+col+'" stroke-width=".3" stroke-opacity=".06"/>';
   } else if(suit==='Pentacles'){
-    // 육각형/자연 패턴
-    pattern='<polygon points="65,10 73,18 73,30 65,38 57,30 57,18" fill="none" stroke="'+col+'" stroke-width=".7" stroke-opacity=".2"/>'
-      +'<circle cx="20" cy="50" r="5" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".15"/>'
-      +'<circle cx="110" cy="50" r="5" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".15"/>'
-      +'<circle cx="20" cy="165" r="5" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".15"/>'
-      +'<circle cx="110" cy="165" r="5" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".15"/>';
+    pattern='<circle cx="20" cy="45" r="5" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".15"/>'
+      +'<circle cx="110" cy="45" r="5" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".15"/>'
+      +'<circle cx="20" cy="168" r="5" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".15"/>'
+      +'<circle cx="110" cy="168" r="5" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".15"/>'
+      +'<circle cx="65" cy="20" r="4" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".12"/>';
   }
 
-  // 수트별 메인 심볼 (더 크고 화려하게)
+  // 수트 메인 심볼
   var sym='';
   if(suit==='Major'){
     sym='<polygon points="65,44 69.5,58 84,58 73,67 77.5,81 65,72 52.5,81 57,67 46,58 60.5,58" fill="none" stroke="'+col+'" stroke-width="2.2" stroke-opacity=".9" stroke-linejoin="round"/>'
-      +'<circle cx="65" cy="62" r="28" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".2"/>';
+      +'<circle cx="65" cy="62" r="30" fill="none" stroke="'+col+'" stroke-width=".4" stroke-opacity=".18"/>';
   } else if(suit==='Wands'){
-    sym='<line x1="65" y1="42" x2="65" y2="112" stroke="'+col+'" stroke-width="3.5" stroke-opacity=".9" stroke-linecap="round"/>'
-      +'<path d="M47,58 Q65,50 83,58" fill="none" stroke="'+col+'" stroke-width="2.2" stroke-opacity=".8" stroke-linecap="round"/>'
-      +'<path d="M52,72 Q65,65 78,72" fill="none" stroke="'+col+'" stroke-width="1.8" stroke-opacity=".65" stroke-linecap="round"/>'
-      +'<path d="M57,84 Q65,79 73,84" fill="none" stroke="'+col+'" stroke-width="1.4" stroke-opacity=".5" stroke-linecap="round"/>'
-      +'<circle cx="65" cy="42" r="4.5" fill="'+col+'" fill-opacity=".9"/>'
-      +'<circle cx="65" cy="42" r="8" fill="none" stroke="'+col+'" stroke-width=".8" stroke-opacity=".4"/>';
+    sym='<line x1="65" y1="44" x2="65" y2="108" stroke="'+col+'" stroke-width="3.5" stroke-opacity=".9" stroke-linecap="round"/>'
+      +'<path d="M49,60 Q65,53 81,60" fill="none" stroke="'+col+'" stroke-width="2.2" stroke-opacity=".8" stroke-linecap="round"/>'
+      +'<path d="M54,73 Q65,67 76,73" fill="none" stroke="'+col+'" stroke-width="1.8" stroke-opacity=".65" stroke-linecap="round"/>'
+      +'<circle cx="65" cy="44" r="4.5" fill="'+col+'" fill-opacity=".9"/>';
   } else if(suit==='Cups'){
-    sym='<path d="M44,56 L47,92 Q65,108 83,92 L86,56 Q78,52 65,52 Q52,52 44,56Z" fill="'+col+'" fill-opacity=".12" stroke="'+col+'" stroke-width="2.2" stroke-opacity=".88" stroke-linejoin="round"/>'
-      +'<line x1="49" y1="100" x2="81" y2="100" stroke="'+col+'" stroke-width="3" stroke-opacity=".8" stroke-linecap="round"/>'
-      +'<path d="M55,56 Q65,44 75,56" fill="'+col+'" fill-opacity=".15" stroke="'+col+'" stroke-width="1.2" stroke-opacity=".5"/>';
+    sym='<path d="M46,57 L49,90 Q65,105 81,90 L84,57 Q76,53 65,53 Q54,53 46,57Z" fill="'+col+'" fill-opacity=".1" stroke="'+col+'" stroke-width="2.2" stroke-opacity=".88" stroke-linejoin="round"/>'
+      +'<line x1="51" y1="98" x2="79" y2="98" stroke="'+col+'" stroke-width="3" stroke-opacity=".8" stroke-linecap="round"/>';
   } else if(suit==='Swords'){
-    sym='<line x1="65" y1="40" x2="65" y2="112" stroke="'+col+'" stroke-width="3.5" stroke-opacity=".9" stroke-linecap="round"/>'
-      +'<line x1="46" y1="65" x2="84" y2="65" stroke="'+col+'" stroke-width="2.2" stroke-opacity=".8" stroke-linecap="round"/>'
-      +'<path d="M57,108 L65,115 L73,108" fill="none" stroke="'+col+'" stroke-width="2" stroke-opacity=".75" stroke-linejoin="round"/>'
-      +'<polygon points="65,40 68,48 65,44 62,48" fill="'+col+'" fill-opacity=".7"/>';
+    sym='<line x1="65" y1="42" x2="65" y2="110" stroke="'+col+'" stroke-width="3.5" stroke-opacity=".9" stroke-linecap="round"/>'
+      +'<line x1="47" y1="66" x2="83" y2="66" stroke="'+col+'" stroke-width="2.2" stroke-opacity=".8" stroke-linecap="round"/>'
+      +'<path d="M58,106 L65,114 L72,106" fill="none" stroke="'+col+'" stroke-width="2" stroke-opacity=".75" stroke-linejoin="round"/>';
   } else if(suit==='Pentacles'){
-    sym='<polygon points="65,44 69.8,58.5 85,58.5 73.1,67.5 77.9,82 65,73 52.1,82 56.9,67.5 45,58.5 60.2,58.5" fill="none" stroke="'+col+'" stroke-width="2.2" stroke-opacity=".9" stroke-linejoin="round"/>'
-      +'<circle cx="65" cy="63" r="26" fill="none" stroke="'+col+'" stroke-width="1.2" stroke-opacity=".3"/>'
-      +'<circle cx="65" cy="63" r="18" fill="'+col+'" fill-opacity=".06"/>';
+    sym='<polygon points="65,46 69.8,60 85,60 73.1,69 77.9,83 65,74 52.1,83 56.9,69 45,60 60.2,60" fill="none" stroke="'+col+'" stroke-width="2.2" stroke-opacity=".9" stroke-linejoin="round"/>'
+      +'<circle cx="65" cy="65" r="25" fill="none" stroke="'+col+'" stroke-width="1" stroke-opacity=".28"/>';
   }
+
+  // 카드 고유 식별 요소: 숫자/점 표시
+  var unique='';
+  if(cardDots>0 && suit!=='Major'){
+    // 숫자 카드: 작은 점으로 숫자 표시 (상단 좌우 코너)
+    var dotR=2.2;
+    // 좌상단에 점 배치
+    var dotPositions=[[14,170],[22,170],[30,170],[38,170],[46,170],[54,170],[62,170],[70,170],[78,170],[86,170]];
+    for(var di=0;di<Math.min(cardDots,10);di++){
+      unique+='<circle cx="'+(12+di*11)+'" cy="168" r="'+dotR+'" fill="'+col+'" fill-opacity=".55"/>';
+    }
+  } else if(cardRank && cardDots===0 && suit!=='Major'){
+    // 코트 카드(Page/Knight/Queen/King): 왕관/심볼
+    if(name.indexOf('King')>=0){
+      unique='<path d="M52,118 L52,125 L65,120 L78,125 L78,118 L74,112 L65,115 L56,112 Z" fill="none" stroke="'+col+'" stroke-width="1.5" stroke-opacity=".6" stroke-linejoin="round"/>';
+    } else if(name.indexOf('Queen')>=0){
+      unique='<path d="M55,118 L55,124 L65,120 L75,124 L75,118 L71,113 L65,116 L59,113 Z" fill="none" stroke="'+col+'" stroke-width="1.3" stroke-opacity=".55" stroke-linejoin="round"/>'
+        +'<circle cx="65" cy="111" r="2" fill="'+col+'" fill-opacity=".5"/>';
+    } else if(name.indexOf('Knight')>=0){
+      unique='<path d="M55,115 Q65,108 75,115 L78,122 L65,118 L52,122 Z" fill="none" stroke="'+col+'" stroke-width="1.3" stroke-opacity=".55" stroke-linejoin="round"/>';
+    } else if(name.indexOf('Page')>=0){
+      unique='<circle cx="65" cy="116" r="6" fill="none" stroke="'+col+'" stroke-width="1.2" stroke-opacity=".5"/>'
+        +'<circle cx="65" cy="116" r="2.5" fill="'+col+'" fill-opacity=".4"/>';
+    }
+  }
+
+  // 로마 숫자 표시 (우상단 코너)
+  var rankLabel = cardRank ? '<text x="118" y="18" font-family="Georgia,serif" font-size="8" fill="'+col+'" fill-opacity=".5" text-anchor="middle">'+cardRank+'</text>' : '';
 
   var pts=name.split(' ');var l1=name.toUpperCase(),l2='';
   if(name.length>13){var m=Math.max(1,Math.floor(pts.length/2));l1=pts.slice(0,m).join(' ').toUpperCase();l2=pts.slice(m).join(' ').toUpperCase();}
@@ -796,8 +784,10 @@ function makeFront(name,suit){
     +'<rect width="130" height="210" rx="12" fill="url(#fg'+suit+')"/>'
     +'<rect width="130" height="210" rx="12" fill="url(#rg'+suit+')"/>'
     +'<rect x="5" y="5" width="120" height="200" rx="9" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".18"/>'
+    +rankLabel
     +pattern
     +sym
+    +unique
     +'<line x1="14" y1="138" x2="116" y2="138" stroke="'+col+'" stroke-width=".8" stroke-opacity=".25"/>'
     +'<text x="65" y="'+y1+'" font-family="Helvetica,sans-serif" font-size="'+fs+'" fill="'+col+'" fill-opacity=".98" text-anchor="middle" letter-spacing="1" font-weight="700">'+l1+'</text>'
     +l2t
