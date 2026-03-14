@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="OREO TAROT">
+<meta name="theme-color" content="#06040f">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>OREO TAROT</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#06040f;--sur:#0e0b1e;--acc:#a78bfa;--acc2:#7c3aed;--neon:#c4b5fd;--txt:#f1f0f7;--mut:#6b7280;--bdr:rgba(167,139,250,0.15)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.star{position:absolute;background:white;border-radius:50%;animation:tw var(--d) ease-in-out infinite;opacity:0}
+@keyframes tw{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:var(--o);transform:scale(1)}}
+.page{display:none;position:relative;z-index:1;min-height:100vh;flex-direction:column;align-items:center;justify-content:center}
+.page.active{display:flex}
+/* SPLASH */
+.splash-logo{font-family:'Bebas Neue',cursive;font-size:clamp(4rem,20vw,7rem);line-height:.88;letter-spacing:.04em;text-align:center;background:linear-gradient(135deg,#fff 0%,var(--neon) 50%,var(--acc) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:si .8s cubic-bezier(.34,1.2,.64,1)}
+.splash-orn{color:var(--acc);opacity:.5;font-size:1.2rem;letter-spacing:.4em;margin-top:20px;animation:si .8s ease .3s both}
+@keyframes si{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+/* MAIN */
+#page-main{padding:0 24px 48px}
+.main-logo{font-family:'Bebas Neue',cursive;font-size:clamp(3rem,14vw,5.5rem);line-height:.88;letter-spacing:.04em;text-align:center;background:linear-gradient(135deg,#fff 0%,var(--neon) 50%,var(--acc) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
+.main-sub{font-size:.85rem;color:var(--mut);text-align:center;letter-spacing:.06em;margin-bottom:48px}
+.admin-footer{position:fixed;bottom:24px;left:0;right:0;text-align:center;z-index:10}
+.admin-link{background:none;border:none;cursor:pointer;color:rgba(107,114,128,.45);font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.18em;transition:color .2s}
+.admin-link:hover{color:rgba(167,139,250,.6)}
+/* PANEL */
+.panel{width:90%;max-width:440px;background:var(--sur);border:1px solid var(--bdr);border-radius:20px;padding:40px 32px;text-align:center;box-shadow:0 0 60px rgba(124,58,237,.08)}
+.ptag{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--acc);letter-spacing:.25em;margin-bottom:14px;opacity:.7}
+.ptitle{font-family:'Bebas Neue',cursive;font-size:1.6rem;letter-spacing:.06em;margin-bottom:4px}
+.psub{color:var(--mut);font-size:.8rem;margin-bottom:22px}
+input[type=password]{width:100%;padding:13px 18px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:10px;color:var(--txt);font-family:'DM Mono',monospace;font-size:1.2rem;letter-spacing:.2em;text-align:center;outline:none;transition:all .25s;margin-bottom:12px}
+input[type=password]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(167,139,250,.1)}
+.btn{padding:13px 28px;border:none;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;transition:all .15s;user-select:none;-webkit-user-select:none}
+.btn:active{transform:scale(0.94)!important;opacity:0.85}
+.lbtns .btn:active{transform:scale(0.92)!important}
+.tc.rdy:active:not(.flipped){transform:scale(0.95)!important}
+.deck-wrap:active{transform:scale(0.95)!important;filter:drop-shadow(0 4px 12px rgba(124,58,237,.4))!important}
+.btn-p{background:var(--acc2);color:#fff;width:100%;box-shadow:0 0 20px rgba(124,58,237,.25)}
+.btn-p:hover{background:#6d28d9;transform:translateY(-1px)}
+.btn-s{background:rgba(167,139,250,.1);border:1px solid var(--bdr);color:var(--acc)}
+.btn-s:hover{background:rgba(167,139,250,.2)}
+.btn-g{background:transparent;border:1px solid rgba(255,255,255,.08);color:var(--mut);font-size:.75rem;padding:9px 16px}
+.btn-g:hover{border-color:var(--bdr);color:var(--acc)}
+.btn-r{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#fca5a5;font-size:.75rem;padding:9px 16px}
+.btn-r:hover{background:rgba(239,68,68,.2)}
+.brow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.err{color:#f87171;font-size:.8rem;margin-top:6px;min-height:16px;text-align:center}
+.back-btn{background:none;border:none;cursor:pointer;color:var(--mut);font-size:.78rem;margin-top:12px;transition:color .2s}
+.back-btn:hover{color:var(--acc)}
+.divider{border:none;border-top:1px solid rgba(255,255,255,.05);margin:16px 0}
+/* DASH */
+.tset{background:rgba(167,139,250,.04);border:1px solid rgba(167,139,250,.12);border-radius:12px;padding:16px;margin-bottom:14px}
+.srow{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.srow:last-child{margin-bottom:0}
+.srow label{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--neon);letter-spacing:.1em;opacity:.85}
+.tinput{background:rgba(255,255,255,.08);border:1px solid rgba(167,139,250,.3);border-radius:8px;padding:8px 12px;color:#fff;font-family:'DM Mono',monospace;font-size:.75rem;outline:none;color-scheme:dark;width:155px;-webkit-text-fill-color:#fff}
+.tinput:focus{border-color:var(--acc)}
+.tinput option{background:#1a1035;color:#fff}
+/* LINK LIST */
+.litem{background:rgba(167,139,250,.05);border:1px solid rgba(167,139,250,.15);border-radius:12px;padding:14px;margin-bottom:8px;transition:all .3s}
+.litem.killed{opacity:.4;border-color:rgba(239,68,68,.2)}
+.litem.expired{opacity:.3;border-color:rgba(100,100,100,.2)}
+.linfo{font-size:.65rem;color:var(--mut);margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.lbadge{font-size:.58rem;padding:2px 8px;border-radius:20px;font-family:'DM Mono',monospace}
+.b-active{background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3)}
+.b-killed{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+.b-expired{background:rgba(100,100,100,.15);color:#9ca3af;border:1px solid rgba(100,100,100,.3)}
+.lurl{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--acc);word-break:break-all;margin-bottom:8px;line-height:1.5}
+.lbtns{display:flex;gap:6px}
+.lbtns .btn{font-size:.65rem;padding:6px 10px}
+/* BOARD */
+#page-board{justify-content:flex-start;padding:24px 14px 60px}
+.timer-bar{display:none;align-items:center;justify-content:center;gap:6px;padding:5px 14px;background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.2);border-radius:30px;font-family:'DM Mono',monospace;font-size:.7rem;color:var(--neon);letter-spacing:.1em;margin-bottom:14px;transition:all .3s}
+.timer-bar.urgent{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.35);color:#fca5a5;animation:up 1s ease-in-out infinite}
+@keyframes up{0%,100%{opacity:1}50%{opacity:.6}}
+.btitle{font-family:'Bebas Neue',cursive;font-size:clamp(1.8rem,6vw,2.6rem);letter-spacing:.08em;text-align:center;margin-bottom:4px}
+.bsub{font-size:.88rem;color:var(--mut);text-align:center;letter-spacing:.04em;margin-bottom:20px}
+/* DECK */
+.deck-area{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;flex:1;min-height:65vh}
+.deck-wrap{position:relative;width:160px;height:256px;cursor:pointer;margin-bottom:28px;filter:drop-shadow(0 0 28px rgba(124,58,237,.65));animation:df 3s ease-in-out infinite;transition:filter .3s;background:none!important;border:none!important;outline:none!important;box-shadow:none!important;overflow:hidden;border-radius:14px}
+.deck-wrap:hover{filter:drop-shadow(0 0 44px rgba(167,139,250,.9))}
+@keyframes df{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.dcta{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--acc);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;animation:pulse 2s ease-in-out infinite;text-align:center;min-height:1.4em;transition:opacity .3s ease;display:block}
+.dhint{font-size:.95rem;color:var(--txt);opacity:.65;text-align:center;padding:0 24px;min-height:1.6em;transition:opacity .3s ease;display:block}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+/* PROGRESS */
+.prog-wrap{display:none;align-items:center;justify-content:center;gap:10px;margin-bottom:14px;font-family:'Bebas Neue',cursive;font-size:1.1rem;color:#fff;letter-spacing:.12em}
+.pdot{width:9px;height:9px;border-radius:50%;background:rgba(167,139,250,.25);transition:all .3s}
+.pdot.on{background:#c4b5fd;box-shadow:0 0 10px rgba(196,181,253,.8);transform:scale(1.3)}
+/* CARDS */
+.card-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:600px;width:100%;opacity:0;transition:opacity .4s}
+.card-grid.show{opacity:1}
+@media(max-width:480px){.card-grid{gap:6px}}
+.tc{aspect-ratio:130/210;border-radius:12px;cursor:pointer;position:relative;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,0,.2,1),box-shadow .3s;box-shadow:0 0 0 1px rgba(255,255,255,.2),0 6px 20px rgba(0,0,0,.6);opacity:0}
+.tc.sp{animation:ci .5s cubic-bezier(.34,1.15,.64,1) forwards;animation-delay:var(--d,0s)}
+@keyframes ci{from{opacity:0;transform:scale(.5) translateY(20px)}to{opacity:1;transform:none}}
+.tc.rdy{opacity:1}
+.tc.rdy:hover:not(.flipped){transform:translateY(-8px) scale(1.05);box-shadow:0 0 0 1.5px rgba(255,255,255,.6),0 16px 36px rgba(0,0,0,.5)}
+.tc.flipped{transform:rotateY(180deg)!important;cursor:default;box-shadow:0 0 0 2px var(--sc,#c4b5fd),0 0 24px var(--sc,#c4b5fd),0 8px 28px rgba(0,0,0,.7)!important}
+.tc.flipped:hover{transform:rotateY(180deg)!important}
+.tc.dim:not(.flipped){opacity:.3;cursor:not-allowed}
+.tc.dim:not(.flipped):hover{transform:none!important}
+.cface{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+.cfront{transform:rotateY(180deg)}
+/* DONE */
+.done-wrap{display:none;flex-direction:column;align-items:center;width:100%;padding:0 16px}
+.done-wrap.show{display:flex}
+.done-row{display:flex;gap:16px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}
+.done-card{width:clamp(120px,36vw,160px);border-radius:14px}
+.done-title{font-family:'Bebas Neue',cursive;font-size:clamp(1.4rem,5vw,1.8rem);letter-spacing:.08em;text-align:center;margin-bottom:8px}
+.done-sub{font-size:.88rem;color:var(--txt);opacity:.75;text-align:center;margin-bottom:24px;line-height:1.7}
+.cap-btn{display:flex;align-items:center;gap:8px;padding:13px 28px;background:rgba(167,139,250,.1);border:1px solid var(--acc);border-radius:12px;cursor:pointer;font-family:'DM Mono',monospace;font-size:.7rem;color:var(--acc);letter-spacing:.1em;transition:all .25s}
+.cap-btn:hover{background:rgba(167,139,250,.2);box-shadow:0 0 20px rgba(167,139,250,.25)}
+.retry-btn{background:none;border:none;cursor:pointer;color:var(--mut);font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.1em;margin-top:14px;transition:color .2s}
+.retry-btn:hover{color:var(--acc)}
+/* EXPIRED */
+#page-expired{text-align:center;padding:40px 24px}
+.exp-icon{font-size:3.5rem;margin-bottom:16px}
+.exp-title{font-family:'Bebas Neue',cursive;font-size:1.8rem;color:#fca5a5;letter-spacing:.08em;margin-bottom:10px}
+.exp-sub{font-size:.88rem;color:var(--mut);line-height:1.7}
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--acc2);color:#fff;padding:10px 22px;border-radius:8px;font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.05em;transition:transform .35s cubic-bezier(.4,0,.2,1);z-index:999;pointer-events:none;box-shadow:0 8px 24px rgba(124,58,237,.4)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+@keyframes shake{0%{transform:rotate(0)}15%{transform:rotate(-10deg) translateX(-6px)}30%{transform:rotate(10deg) translateX(6px)}50%{transform:rotate(-6deg) translateX(-4px)}70%{transform:rotate(6deg) translateX(4px)}85%{transform:rotate(-2deg)}100%{transform:rotate(0)}}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="toast" id="toast"></div>
+
+<!-- SPLASH -->
+<div class="page" id="page-splash">
+  <div class="splash-logo">OREO<br>TAROT</div>
+  <div class="splash-orn">&#10022; &nbsp; &#10022; &nbsp; &#10022;</div>
+</div>
+
+<!-- MAIN -->
+<div class="page active" id="page-main">
+  <div class="main-logo">OREO<br>TAROT</div>
+  <p class="main-sub">타로상담사에게 받은 링크로 접속하세요</p>
+  <div class="admin-footer">
+    <button class="admin-link" onclick="showPage('page-admin-login')">ADMIN</button>
+  </div>
+</div>
+
+<!-- ADMIN LOGIN -->
+<div class="page" id="page-admin-login">
+  <div class="panel">
+    <div class="ptag">Admin Access</div>
+    <div class="ptitle">관리자 접속</div>
+    <p class="psub">타로 리더 전용</p>
+    <input type="password" id="admin-pw" placeholder="Password" maxlength="20"/>
+    <button class="btn btn-p" onclick="adminLogin()">접속</button>
+    <div class="err" id="admin-err"></div>
+    <br><button class="back-btn" onclick="showPage('page-main')">&#8592; 돌아가기</button>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div class="page" id="page-admin-dash">
+  <div class="panel" style="max-width:460px;max-height:90vh;overflow-y:auto">
+    <div class="ptag">Dashboard</div>
+    <div class="ptitle">관리자</div>
+    <p class="psub">링크를 생성하여 내담자에게 전달하세요</p>
+    <div class="tset">
+      <div class="srow">
+        <label>시작 시간</label>
+        <input type="time" id="s-time" class="tinput"/>
+      </div>
+      <div class="srow">
+        <label>유효 시간</label>
+        <select id="s-dur" class="tinput">
+          <option value="20">20분</option>
+          <option value="30">30분</option>
+          <option value="60" selected>1시간</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-p" onclick="genLink()" style="margin-bottom:16px">&#10022; 새 링크 생성</button>
+    <div id="link-list"><div style="text-align:center;color:var(--mut);font-size:.75rem;padding:16px">생성된 링크가 없습니다</div></div>
+    <div class="divider"></div>
+    <div class="brow">
+<button class="btn btn-g" onclick="adminLogout()">로그아웃</button>
+    </div>
+  </div>
+</div>
+
+<!-- BOARD -->
+<div class="page" id="page-board">
+  <div class="timer-bar" id="timer-bar">
+    <span>&#8987;</span>
+    <span id="timer-disp">--:--</span>
+    <span>남음</span>
+  </div>
+  <div class="btitle">PICK YOUR CARD</div>
+  <div class="bsub" id="board-sub">카드를 누르면 자동으로 섞입니다</div>
+  <div class="deck-area" id="deck-area">
+    <div class="deck-wrap" id="deck-wrap" onclick="onDeckClick()">
+<svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;transform:rotate(-6deg) translate(-5px,-3px)"><defs>
+<linearGradient id="cbg" x1="0" y1="0" x2="0.4" y2="1">
+  <stop offset="0%" stop-color="#3d2a7a"/>
+  <stop offset="50%" stop-color="#2a1f5e"/>
+  <stop offset="100%" stop-color="#341a6e"/>
+</linearGradient>
+<linearGradient id="cbb" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0%" stop-color="#c4b5fd" stop-opacity="0.9"/>
+  <stop offset="50%" stop-color="#a78bfa" stop-opacity="0.5"/>
+  <stop offset="100%" stop-color="#818cf8" stop-opacity="0.8"/>
+</linearGradient>
+</defs><rect width="130" height="210" rx="14" fill="#2a1f5e"/>
+<rect width="130" height="210" rx="14" fill="url(#cbg)"/>
+<rect x="1" y="1" width="128" height="208" rx="13" fill="none" stroke="url(#cbb)" stroke-width="1.5"/>
+<rect x="6" y="6" width="118" height="198" rx="10" fill="none" stroke="#c4b5fd" stroke-width="0.4" stroke-opacity="0.18"/>
+<line x1="0" y1="70" x2="130" y2="70" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.3"/>
+<line x1="0" y1="140" x2="130" y2="140" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.3"/>
+<line x1="43" y1="0" x2="43" y2="210" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.22"/>
+<line x1="87" y1="0" x2="87" y2="210" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.22"/>
+<circle cx="43" cy="70" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
+<circle cx="87" cy="70" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
+<circle cx="43" cy="140" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
+<circle cx="87" cy="140" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
+<polygon points="65,20 68.5,30 79,30 71,37 74.5,47 65,40.5 55.5,47 59,37 51,30 61.5,30" fill="none" stroke="#e0d9ff" stroke-width="1.4" stroke-opacity="0.8" stroke-linejoin="round"/>
+<path d="M65,58 Q80,66 80,82 Q80,98 65,106 Q72,98 72,82 Q72,66 65,58Z" fill="#c4b5fd" fill-opacity="0.38"/>
+<text x="65" y="115" font-family="Georgia,serif" font-size="28" fill="#e8e0ff" fill-opacity="0.85" text-anchor="middle" dominant-baseline="central">&#9789;</text>
+<text x="65" y="178" font-family="Helvetica,sans-serif" font-size="7" fill="#c4b5fd" fill-opacity="0.55" text-anchor="middle" letter-spacing="3">TAROT</text>
+<line x1="25" y1="175" x2="42" y2="175" stroke="#c4b5fd" stroke-width="0.6" stroke-opacity="0.4"/>
+<line x1="88" y1="175" x2="105" y2="175" stroke="#c4b5fd" stroke-width="0.6" stroke-opacity="0.4"/></svg>
+<svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;transform:rotate(3deg) translate(4px,-2px)"><defs>
+<linearGradient id="cbg" x1="0" y1="0" x2="0.4" y2="1">
+  <stop offset="0%" stop-color="#3d2a7a"/>
+  <stop offset="50%" stop-color="#2a1f5e"/>
+  <stop offset="100%" stop-color="#341a6e"/>
+</linearGradient>
+<linearGradient id="cbb" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0%" stop-color="#c4b5fd" stop-opacity="0.9"/>
+  <stop offset="50%" stop-color="#a78bfa" stop-opacity="0.5"/>
+  <stop offset="100%" stop-color="#818cf8" stop-opacity="0.8"/>
+</linearGradient>
+</defs><rect width="130" height="210" rx="14" fill="#2a1f5e"/>
+<rect width="130" height="210" rx="14" fill="url(#cbg)"/>
+<rect x="1" y="1" width="128" height="208" rx="13" fill="none" stroke="url(#cbb)" stroke-width="1.5"/>
+<rect x="6" y="6" width="118" height="198" rx="10" fill="none" stroke="#c4b5fd" stroke-width="0.4" stroke-opacity="0.18"/>
+<line x1="0" y1="70" x2="130" y2="70" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.3"/>
+<line x1="0" y1="140" x2="130" y2="140" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.3"/>
+<line x1="43" y1="0" x2="43" y2="210" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.22"/>
+<line x1="87" y1="0" x2="87" y2="210" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.22"/>
+<circle cx="43" cy="70" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
+<circle cx="87" cy="70" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
+<circle cx="43" cy="140" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
+<circle cx="87" cy="140" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
+<polygon points="65,20 68.5,30 79,30 71,37 74.5,47 65,40.5 55.5,47 59,37 51,30 61.5,30" fill="none" stroke="#e0d9ff" stroke-width="1.4" stroke-opacity="0.8" stroke-linejoin="round"/>
+<path d="M65,58 Q80,66 80,82 Q80,98 65,106 Q72,98 72,82 Q72,66 65,58Z" fill="#c4b5fd" fill-opacity="0.38"/>
+<text x="65" y="115" font-family="Georgia,serif" font-size="28" fill="#e8e0ff" fill-opacity="0.85" text-anchor="middle" dominant-baseline="central">&#9789;</text>
+<text x="65" y="178" font-family="Helvetica,sans-serif" font-size="7" fill="#c4b5fd" fill-opacity="0.55" text-anchor="middle" letter-spacing="3">TAROT</text>
+<line x1="25" y1="175" x2="42" y2="175" stroke="#c4b5fd" stroke-width="0.6" stroke-opacity="0.4"/>
+<line x1="88" y1="175" x2="105" y2="175" stroke="#c4b5fd" stroke-width="0.6" stroke-opacity="0.4"/></svg>
+<svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;transform:rotate(-1deg) translate(-2px,1px)"><defs>
+<linearGradient id="cbg" x1="0" y1="0" x2="0.4" y2="1">
+  <stop offset="0%" stop-color="#3d2a7a"/>
+  <stop offset="50%" stop-color="#2a1f5e"/>
+  <stop offset="100%" stop-color="#341a6e"/>
+</linearGradient>
+<linearGradient id="cbb" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0%" stop-color="#c4b5fd" stop-opacity="0.9"/>
+  <stop offset="50%" stop-color="#a78bfa" stop-opacity="0.5"/>
+  <stop offset="100%" stop-color="#818cf8" stop-opacity="0.8"/>
+</linearGradient>
+</defs><rect width="130" height="210" rx="14" fill="#2a1f5e"/>
+<rect width="130" height="210" rx="14" fill="url(#cbg)"/>
+<rect x="1" y="1" width="128" height="208" rx="13" fill="none" stroke="url(#cbb)" stroke-width="1.5"/>
+<rect x="6" y="6" width="118" height="198" rx="10" fill="none" stroke="#c4b5fd" stroke-width="0.4" stroke-opacity="0.18"/>
+<line x1="0" y1="70" x2="130" y2="70" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.3"/>
+<line x1="0" y1="140" x2="130" y2="140" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.3"/>
+<line x1="43" y1="0" x2="43" y2="210" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.22"/>
+<line x1="87" y1="0" x2="87" y2="210" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.22"/>
+<circle cx="43" cy="70" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
+<circle cx="87" cy="70" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
+<circle cx="43" cy="140" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
+<circle cx="87" cy="140" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
+<polygon points="65,20 68.5,30 79,30 71,37 74.5,47 65,40.5 55.5,47 59,37 51,30 61.5,30" fill="none" stroke="#e0d9ff" stroke-width="1.4" stroke-opacity="0.8" stroke-linejoin="round"/>
+<path d="M65,58 Q80,66 80,82 Q80,98 65,106 Q72,98 72,82 Q72,66 65,58Z" fill="#c4b5fd" fill-opacity="0.38"/>
+<text x="65" y="115" font-family="Georgia,serif" font-size="28" fill="#e8e0ff" fill-opacity="0.85" text-anchor="middle" dominant-baseline="central">&#9789;</text>
+<text x="65" y="178" font-family="Helvetica,sans-serif" font-size="7" fill="#c4b5fd" fill-opacity="0.55" text-anchor="middle" letter-spacing="3">TAROT</text>
+<line x1="25" y1="175" x2="42" y2="175" stroke="#c4b5fd" stroke-width="0.6" stroke-opacity="0.4"/>
+<line x1="88" y1="175" x2="105" y2="175" stroke="#c4b5fd" stroke-width="0.6" stroke-opacity="0.4"/></svg>
+<svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%"><defs>
+<linearGradient id="cbg" x1="0" y1="0" x2="0.4" y2="1">
+  <stop offset="0%" stop-color="#3d2a7a"/>
+  <stop offset="50%" stop-color="#2a1f5e"/>
+  <stop offset="100%" stop-color="#341a6e"/>
+</linearGradient>
+<linearGradient id="cbb" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0%" stop-color="#c4b5fd" stop-opacity="0.9"/>
+  <stop offset="50%" stop-color="#a78bfa" stop-opacity="0.5"/>
+  <stop offset="100%" stop-color="#818cf8" stop-opacity="0.8"/>
+</linearGradient>
+</defs><rect width="130" height="210" rx="14" fill="#2a1f5e"/>
+<rect width="130" height="210" rx="14" fill="url(#cbg)"/>
+<rect x="1" y="1" width="128" height="208" rx="13" fill="none" stroke="url(#cbb)" stroke-width="1.5"/>
+<rect x="6" y="6" width="118" height="198" rx="10" fill="none" stroke="#c4b5fd" stroke-width="0.4" stroke-opacity="0.18"/>
+<line x1="0" y1="70" x2="130" y2="70" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.3"/>
+<line x1="0" y1="140" x2="130" y2="140" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.3"/>
+<line x1="43" y1="0" x2="43" y2="210" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.22"/>
+<line x1="87" y1="0" x2="87" y2="210" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.22"/>
+<circle cx="43" cy="70" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
+<circle cx="87" cy="70" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
+<circle cx="43" cy="140" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
+<circle cx="87" cy="140" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
+<polygon points="65,20 68.5,30 79,30 71,37 74.5,47 65,40.5 55.5,47 59,37 51,30 61.5,30" fill="none" stroke="#e0d9ff" stroke-width="1.4" stroke-opacity="0.8" stroke-linejoin="round"/>
+<path d="M65,58 Q80,66 80,82 Q80,98 65,106 Q72,98 72,82 Q72,66 65,58Z" fill="#c4b5fd" fill-opacity="0.38"/>
+<text x="65" y="115" font-family="Georgia,serif" font-size="28" fill="#e8e0ff" fill-opacity="0.85" text-anchor="middle" dominant-baseline="central">&#9789;</text>
+<text x="65" y="178" font-family="Helvetica,sans-serif" font-size="7" fill="#c4b5fd" fill-opacity="0.55" text-anchor="middle" letter-spacing="3">TAROT</text>
+<line x1="25" y1="175" x2="42" y2="175" stroke="#c4b5fd" stroke-width="0.6" stroke-opacity="0.4"/>
+<line x1="88" y1="175" x2="105" y2="175" stroke="#c4b5fd" stroke-width="0.6" stroke-opacity="0.4"/></svg>
+    </div>
+    <div class="dcta" id="dcta">TAP TO SHUFFLE</div>
+    <div class="dhint" id="dhint">마음속으로 질문을 떠올려보세요</div>
+  </div>
+  <div class="prog-wrap" id="prog-wrap">
+    <div class="pdot" id="pd1"></div>
+    <div class="pdot" id="pd2"></div>
+    <span id="prog-lbl">0 / 2</span>
+  </div>
+  <div class="card-grid" id="card-grid"></div>
+  <div class="done-wrap" id="done-wrap">
+    <div class="done-row" id="done-row"></div>
+    <div class="done-title">카드가 선택되었습니다</div>
+    <div class="done-sub">선택된 카드를 캡처하여<br>타로상담사에게 전달하세요</div>
+    <button class="cap-btn" onclick="showCapGuide()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="4"/></svg>
+      화면 캡처하는 방법
+    </button>
+    <button class="retry-btn" onclick="retryCards()">&#8592; 다시 선택하기</button>
+  </div>
+</div>
+
+<!-- EXPIRED -->
+<div class="page" id="page-expired">
+  <div class="exp-icon">&#9200;</div>
+  <div class="exp-title">세션이 만료되었습니다</div>
+  <p class="exp-sub">상담 시간이 종료되었습니다.<br>타로상담사에게 새 링크를 요청해주세요.</p>
+</div>
+
+<script>
+var ADMIN_PW='180103';
+var FB='https://oreotarot-default-rtdb.firebaseio.com';
+var TAROT=["The Fool", "The Magician", "The High Priestess", "The Empress", "The Emperor", "The Hierophant", "The Lovers", "The Chariot", "Strength", "The Hermit", "Wheel of Fortune", "Justice", "The Hanged Man", "Death", "Temperance", "The Devil", "The Tower", "The Star", "The Moon", "The Sun", "Judgement", "The World", "Ace of Wands", "Two of Wands", "Three of Wands", "Four of Wands", "Five of Wands", "Six of Wands", "Seven of Wands", "Eight of Wands", "Nine of Wands", "Ten of Wands", "Page of Wands", "Knight of Wands", "Queen of Wands", "King of Wands", "Ace of Cups", "Two of Cups", "Three of Cups", "Four of Cups", "Five of Cups", "Six of Cups", "Seven of Cups", "Eight of Cups", "Nine of Cups", "Ten of Cups", "Page of Cups", "Knight of Cups", "Queen of Cups", "King of Cups", "Ace of Swords", "Two of Swords", "Three of Swords", "Four of Swords", "Five of Swords", "Six of Swords", "Seven of Swords", "Eight of Swords", "Nine of Swords", "Ten of Swords", "Page of Swords", "Knight of Swords", "Queen of Swords", "King of Swords", "Ace of Pentacles", "Two of Pentacles", "Three of Pentacles", "Four of Pentacles", "Five of Pentacles", "Six of Pentacles", "Seven of Pentacles", "Eight of Pentacles", "Nine of Pentacles", "Ten of Pentacles", "Page of Pentacles", "Knight of Pentacles", "Queen of Pentacles", "King of Pentacles"];
+var SC={Major:'#c4b5fd',Wands:'#fb923c',Cups:'#60a5fa',Swords:'#e2e8f0',Pentacles:'#4ade80'};
+var sessions=[];
+var sessionExpiry=null;
+var timerIv=null;
+var currentCards=[];
+var deckDone=false;
+var ctx=null;
+
+// AUDIO
+var AC = null;
+var AC_UNLOCKED = false;
+
+function getAC() {
+  if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+  return AC;
+}
+
+// 모바일 오디오 잠금 해제: 첫 터치에서 묵음 버퍼 재생으로 AudioContext 활성화
+function unlockAudio() {
+  if (AC_UNLOCKED) return;
+  var c = getAC();
+  var buf = c.createBuffer(1, 1, 22050);
+  var src = c.createBufferSource();
+  src.buffer = buf;
+  src.connect(c.destination);
+  src.start(0);
+  if (c.state === 'suspended') {
+    c.resume().then(function() { AC_UNLOCKED = true; }).catch(function(){});
+  } else {
+    AC_UNLOCKED = true;
+  }
+}
+
+function playSound(fn) {
+  var c = getAC();
+  if (c.state === 'suspended') {
+    c.resume().then(function() {
+      try { fn(c); } catch(e) {}
+    }).catch(function(){});
+  } else {
+    try { fn(c); } catch(e) {}
+  }
+}
+
+function tone(c, freq, vol, start, dur) {
+  var o = c.createOscillator();
+  var g = c.createGain();
+  o.frequency.value = freq;
+  o.type = 'sine';
+  var t = c.currentTime;
+  g.gain.setValueAtTime(0, t + start);
+  g.gain.linearRampToValueAtTime(vol, t + start + 0.005);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + start + dur);
+  o.connect(g); g.connect(c.destination);
+  o.start(t + start);
+  o.stop(t + start + dur + 0.05);
+}
+
+function playShuffle() {
+  playSound(function(c) {
+    for (var i = 0; i < 8; i++) {
+      tone(c, 300 + i*50, 0.18, i*0.06, 0.08);
+    }
+  });
+}
+function playSpread() {
+  playSound(function(c) {
+    tone(c, 261, 0.22, 0, 0.5);
+    tone(c, 329, 0.18, 0.1, 0.4);
+    tone(c, 392, 0.18, 0.2, 0.4);
+    tone(c, 523, 0.15, 0.3, 0.5);
+  });
+}
+function playFlip() {
+  playSound(function(c) {
+    tone(c, 800, 0.25, 0, 0.05);
+    tone(c, 1000, 0.2, 0.04, 0.08);
+    tone(c, 1200, 0.18, 0.08, 0.15);
+  });
+}
+function playDone() {
+  playSound(function(c) {
+    tone(c, 523, 0.25, 0, 0.3);
+    tone(c, 659, 0.25, 0.18, 0.3);
+    tone(c, 784, 0.28, 0.36, 0.5);
+  });
+}
+
+// 첫 터치/클릭에서 오디오 잠금 해제 (once: 한 번만 실행)
+document.addEventListener('touchstart', unlockAudio, {once: true, passive: true});
+document.addEventListener('click', unlockAudio, {once: true});
+
+
+
+
+
+
+
+
+(function(){
+  var c=document.getElementById('stars');
+  for(var i=0;i<60;i++){
+    var s=document.createElement('div');s.className='star';
+    var sz=Math.random()*2+.4;
+    s.style.cssText='width:'+sz+'px;height:'+sz+'px;left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;--d:'+(Math.random()*5+3)+'s;--o:'+(Math.random()*.4+.1);
+    c.appendChild(s);
+  }
+})();
+
+function showPage(id){
+  // 메인으로 가려는데 관리자 로그인 상태면 대시보드로
+  if(id==='page-main' && localStorage.getItem('ot_admin')==='1'){
+    id='page-admin-dash';
+    loadSessions();
+  }
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function showToast(msg){
+  var t=document.getElementById('toast');t.textContent=msg;
+  t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2400);
+}
+
+/* URL PARAM */
+(function(){
+  var p=new URLSearchParams(window.location.search);
+  var t=p.get('t');
+  if(!t)return;
+  fetch(FB+'/sessions/'+t+'.json').then(function(r){return r.json();}).then(function(sess){
+    var exp,active;
+    if(sess&&sess.exp){
+      exp=sess.exp;active=sess.active;
+    } else {
+      try{
+        var pad=t.replace(/-/g,'+').replace(/_/g,'/');
+        exp=parseInt(atob(pad));active=true;
+      }catch(e){return;}
+    }
+    if(!active||Date.now()>exp){setTimeout(function(){showPage('page-expired');},300);return;}
+    sessionExpiry=exp;
+    currentCards=TAROT.slice().sort(function(){return Math.random()-.5;}).slice(0,8).map(function(n){return{name:n};});
+    setTimeout(function(){
+      showPage('page-splash');
+      setTimeout(function(){ try{ playSpread(); }catch(e){} }, 500);
+      setTimeout(function(){showPage('page-board');startTimer();},1800);
+    },100);
+  }).catch(function(){
+    setTimeout(function(){showPage('page-expired');},300);
+  });
+})();
+
+/* TIMER */
+function startTimer(){
+  if(!sessionExpiry)return;
+  var bar=document.getElementById('timer-bar');
+  var disp=document.getElementById('timer-disp');
+  if(!bar||!disp)return;
+  bar.style.display='flex';
+  function tick(){
+    var rem=sessionExpiry-Date.now();
+    if(rem<=0){clearInterval(timerIv);disp.textContent='00:00';bar.classList.add('urgent');setTimeout(function(){showPage('page-expired');},2000);return;}
+    var m=Math.floor(rem/60000),s=Math.floor((rem%60000)/1000);
+    disp.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+    if(rem<5*60*1000)bar.classList.add('urgent');
+  }
+  tick();timerIv=setInterval(tick,1000);
+}
+
+/* ADMIN */
+document.getElementById('admin-pw').addEventListener('keydown',function(e){
+  if(e.key==='Enter') adminLogin();
+  else if(e.key.length===1||e.key==='Backspace') {
+    playSound(function(c){ tone(c, e.key==='Backspace'?400:500+Math.random()*200, 0.1, 0, 0.05); });
+  }
+});
+
+function adminLogin(){
+  if(document.getElementById('admin-pw').value===ADMIN_PW){
+    document.getElementById('admin-pw').value='';
+    document.getElementById('admin-err').textContent='';
+    localStorage.setItem('ot_admin','1');
+    var now=new Date();
+    var ti=document.getElementById('s-time');
+    if(!ti.value)ti.value=(now.getHours()<10?'0':'')+now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
+    showPage('page-admin-dash');
+    loadSessions();
+  } else {
+    document.getElementById('admin-err').textContent='비밀번호가 올바르지 않습니다';
+  }
+}
+
+function adminLogout(){
+  sessions=[];
+  localStorage.removeItem('ot_admin');
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('page-main').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function loadSessions(){
+  fetch(FB+'/sessions.json').then(function(r){return r.json();}).then(function(data){
+    if(!data){sessions=[];renderList();return;}
+    var DAY=24*60*60*1000;
+    var MONTH=30*24*60*60*1000;
+    var dels=[];
+    var arr=[];
+    Object.keys(data).forEach(function(token){
+      var s=data[token];
+      // 폭파된 링크: 30일 후 삭제
+      if(!s.active && Date.now()>s.created+MONTH){
+        dels.push(fetch(FB+'/sessions/'+token+'.json',{method:'DELETE'}));return;
+      }
+      // 만료된 링크: 24시간 후 삭제
+      if(s.active && Date.now()>s.exp+DAY){dels.push(fetch(FB+'/sessions/'+token+'.json',{method:'DELETE'}));return;}
+      var fmt=function(ms){var d=new Date(ms);return d.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});};
+      var dur=Math.round((s.exp-(s.created||s.exp-3600000))/60000)||60;
+      // 활성 링크만 목록에 추가 (폭파/만료 제외)
+      var isAct = (s.active===true||s.active==='true');
+      var notExp = Date.now() <= s.exp;
+      if(!isAct || !notExp) return;
+      arr.push({token:token,exp:s.exp,active:true,url:'https://oreotarot.github.io/?t='+token,label:fmt(s.created||s.exp-dur*60000)+' ~ '+fmt(s.exp)+' ('+dur+'분)'});
+    });
+    if(dels.length)Promise.all(dels).then(function(){showToast('🗑 오래된 세션 '+dels.length+'개 삭제');});
+    sessions=arr.sort(function(a,b){return b.exp-a.exp;});
+    renderList();
+  }).catch(function(){sessions=[];renderList();});
+}
+
+function genLink(){
+  var tv=document.getElementById('s-time').value;
+  var dur=parseInt(document.getElementById('s-dur').value);
+  var exp=Date.now()+dur*60*1000;
+  var token=btoa(exp.toString()).replace(/=/g,'').replace(/[+]/g,'-').replace(/[/]/g,'_');
+  try{
+    fetch(FB+'/sessions/'+token+'.json',{method:'PUT',body:JSON.stringify({exp:exp,active:true,created:Date.now()})})
+      .then(function(){showToast('✦ 링크 생성 완료!');})
+      .catch(function(e){console.log('DB err',e);showToast('⚠️ DB 오류: '+e.message);});
+  }catch(e){showToast('⚠️ '+e.message);}
+  var url='https://oreotarot.github.io/?t='+token;
+  var fmt=function(ms){var d=new Date(ms);return d.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});};
+  sessions.unshift({token:token,exp:exp,active:true,url:url,label:fmt(Date.now())+' ~ '+fmt(exp)+' ('+dur+'분)'});
+  renderList();
+}
+
+function killLink(token){
+  if(!confirm('이 링크를 즉시 폭파할까요?'))return;
+  fetch(FB+'/sessions/'+token+'/active.json',{method:'PUT',body:'false'}).then(function(){
+    sessions=sessions.filter(function(s){return s.token!==token;});
+    renderList();showToast('💥 링크 폭파 완료!');
+  }).catch(function(){showToast('❌ 폭파 실패');});
+}
+
+function copyLinkUrl(url){
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(url).then(function(){showToast('🔗 링크 복사 완료!');});
+  } else {
+    var el=document.createElement('textarea');el.value=url;
+    el.style.cssText='position:fixed;top:-9999px;opacity:0';
+    document.body.appendChild(el);el.focus();el.select();
+    try{document.execCommand('copy');showToast('🔗 링크 복사 완료!');}catch(e){}
+    document.body.removeChild(el);
+  }
+}
+
+function cleanSessions(){
+  if(!confirm('폭파/만료된 링크를 화면에서 숨길까요?\n(Firebase 데이터는 유지됩니다)'))return;
+  // 활성 링크만 남기기 (폭파/만료 화면에서 제거, Firebase는 그대로)
+  var before = sessions.length;
+  sessions = sessions.filter(function(s){
+    // active가 true/'true' 둘 다 처리, 만료 안된 것만 남김
+    var isActive = s.active === true || s.active === 'true';
+    var notExp = Date.now() <= s.exp;
+    return isActive && notExp;
+  });
+  var removed = before - sessions.length;
+  renderList();
+  showToast('🗑 ' + removed + '개 숨김 완료!');
+}
+
+function renderList(){
+  var list=document.getElementById('link-list');
+  if(!list)return;
+  if(!sessions.length){list.innerHTML='<div style="text-align:center;color:var(--mut);font-size:.75rem;padding:16px">생성된 링크가 없습니다</div>';return;}
+  var html='';
+  for(var i=0;i<sessions.length;i++){
+    var s=sessions[i];
+    var isExp=Date.now()>s.exp;
+    var st='active';
+    var stTxt=st==='active'?'● 활성':st==='killed'?'💥 폭파됨':'⏰ 만료됨';
+    var cls='litem'+(st!=='active'?' '+st:'');
+    var killBtn=st==='active'?'<button class="btn btn-r lkill" style="font-size:.62rem;padding:5px 10px">💥 폭파</button>':'';
+    var copyBtn='<button class="btn btn-s lcopy"'+(st!=='active'?' disabled style="opacity:.4"':'')+'>🔗 복사</button>';
+    html+='<div class="'+cls+'" data-token="'+s.token+'" data-url="'+s.url+'">'
+      +'<div class="linfo"><span class="lbadge b-'+st+'">'+stTxt+'</span><span>'+s.label+'</span></div>'
+      +'<div class="lurl">'+s.url+'</div>'
+      +'<div class="lbtns">'+copyBtn+killBtn+'</div>'
+      +'</div>';
+  }
+  list.innerHTML=html;
+  // 이벤트 위임으로 버튼 처리
+  list.onclick=function(e){
+    var btn=e.target.closest('button');
+    if(!btn)return;
+    var item=e.target.closest('[data-token]');
+    if(!item)return;
+    if(btn.classList.contains('lkill')) killLink(item.getAttribute('data-token'));
+    if(btn.classList.contains('lcopy')) copyLinkUrl(item.getAttribute('data-url'));
+  };
+}
+
+/* DECK */
+function getSuit(n){var ss=['Wands','Cups','Swords','Pentacles'];for(var i=0;i<ss.length;i++)if(n.indexOf(ss[i])>=0)return ss[i];return'Major';}
+
+function setTxt(cta, hint, c, h, cb) {
+  cta.style.opacity='0'; hint.style.opacity='0';
+  setTimeout(function(){
+    cta.textContent=c; hint.textContent=h;
+    cta.style.opacity='1'; hint.style.opacity='1';
+    if(cb) setTimeout(cb, 650);
+  }, 300);
+}
+function onDeckClick(){
+  if(deckDone) return; deckDone=true;
+  var wrap=document.getElementById('deck-wrap');
+  var cta=document.getElementById('dcta');
+  var hint=document.getElementById('dhint');
+  // 즉시 클릭 비활성화 (중복 실행 방지)
+  wrap.style.pointerEvents='none';
+  wrap.onclick=null;
+  playShuffle();
+  wrap.style.animation='shake .65s ease-in-out';
+  setTimeout(function(){
+    setTxt(cta, hint, 'CONNECTING...', '당신의 에너지와 연결 중입니다', function(){
+      setTxt(cta, hint, 'READING...', '질문의 기운을 읽고 있습니다', function(){
+        setTxt(cta, hint, 'CARDS READY ✦', '운명의 카드가 준비되었습니다', null);
+      });
+    });
+  }, 200);
+  setTimeout(function(){
+    playSpread();
+    document.getElementById('deck-area').style.display='none';
+    document.getElementById('board-sub').textContent='마음이 이끄는 카드를 2장 선택해주세요';
+    document.getElementById('prog-wrap').style.display='flex';
+    renderCards();
+  }, 2400);
+}
+
+function makeFront(name,suit){
+  var c=SC[suit]||'#c4b5fd';
+  var bgs={Major:'#1a1035',Wands:'#1a0d00',Cups:'#00091a',Swords:'#0a0d12',Pentacles:'#001a08'};
+  var bg=bgs[suit]||'#1a1035';
+  var paths={
+    Major:'<polygon points="65,50 68.1,61 79,61 70.4,67.6 73.5,78.5 65,72 56.5,78.5 59.6,67.6 51,61 61.9,61" fill="none" stroke="'+c+'" stroke-width="2" stroke-opacity=".88" stroke-linejoin="round"/>',
+    Wands:'<line x1="65" y1="50" x2="65" y2="106" stroke="'+c+'" stroke-width="3" stroke-opacity=".88" stroke-linecap="round"/><path d="M52,62 Q65,56 78,62" fill="none" stroke="'+c+'" stroke-width="2" stroke-opacity=".75" stroke-linecap="round"/><path d="M56,72 Q65,67 74,72" fill="none" stroke="'+c+'" stroke-width="1.5" stroke-opacity=".6" stroke-linecap="round"/><circle cx="65" cy="50" r="3.5" fill="'+c+'" fill-opacity=".85"/>',
+    Cups:'<path d="M48,60 L50,88 Q65,100 80,88 L82,60 Q75,57 65,57 Q55,57 48,60Z" fill="none" stroke="'+c+'" stroke-width="2" stroke-opacity=".88" stroke-linejoin="round"/><line x1="53" y1="96" x2="77" y2="96" stroke="'+c+'" stroke-width="2.5" stroke-opacity=".8" stroke-linecap="round"/>',
+    Swords:'<line x1="65" y1="47" x2="65" y2="109" stroke="'+c+'" stroke-width="3" stroke-opacity=".88" stroke-linecap="round"/><line x1="49" y1="69" x2="81" y2="69" stroke="'+c+'" stroke-width="2" stroke-opacity=".75" stroke-linecap="round"/><path d="M59,105 L65,109 L71,105" fill="none" stroke="'+c+'" stroke-width="1.8" stroke-opacity=".7" stroke-linejoin="round"/>',
+    Pentacles:'<polygon points="65,50 68.7,61.3 80.6,61.3 71,68.1 74.7,79.4 65,72.6 55.3,79.4 59,68.1 49.4,61.3 61.3,61.3" fill="none" stroke="'+c+'" stroke-width="2" stroke-opacity=".88" stroke-linejoin="round"/><circle cx="65" cy="79" r="23" fill="none" stroke="'+c+'" stroke-width=".8" stroke-opacity=".3"/>'
+  };
+  var sym=paths[suit]||paths.Major;
+  var pts=name.split(' ');var l1=name.toUpperCase(),l2='';
+  if(name.length>13){var m=Math.max(1,Math.floor(pts.length/2));l1=pts.slice(0,m).join(' ').toUpperCase();l2=pts.slice(m).join(' ').toUpperCase();}
+  var fs=name.length>16?9:name.length>12?11:13;
+  var y1=l2?155:163;
+  var l2t=l2?('<text x="65" y="167" font-family="Helvetica,sans-serif" font-size="'+fs+'" fill="'+c+'" fill-opacity=".95" text-anchor="middle" letter-spacing="1" font-weight="700">'+l2+'</text>'):'';
+  var lbl=suit==='Major'?'MAJOR ARCANA':suit.toUpperCase();
+  return '<svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">'
+    +'<defs><linearGradient id="fg" x1="0" y1="0" x2=".3" y2="1"><stop offset="0%" stop-color="'+bg+'"/><stop offset="100%" stop-color="#080810"/></linearGradient>'
+    +'<radialGradient id="rg" cx=".5" cy=".44" r=".42"><stop offset="0%" stop-color="'+c+'" stop-opacity=".14"/><stop offset="100%" stop-color="'+c+'" stop-opacity="0"/></radialGradient></defs>'
+    +'<rect width="130" height="210" rx="12" fill="url(#fg)"/><rect width="130" height="210" rx="12" fill="url(#rg)"/>'
+    +'<rect x="6" y="6" width="118" height="198" rx="8" fill="none" stroke="'+c+'" stroke-width=".3" stroke-opacity=".1"/>'
+    +'<circle cx="65" cy="78" r="44" fill="'+c+'" fill-opacity=".04"/>'
+    +'<circle cx="65" cy="78" r="36" fill="none" stroke="'+c+'" stroke-width=".8" stroke-opacity=".25"/>'
+    +sym
+    +'<line x1="14" y1="140" x2="116" y2="140" stroke="'+c+'" stroke-width=".6" stroke-opacity=".18"/>'
+    +'<text x="65" y="'+y1+'" font-family="Helvetica,sans-serif" font-size="'+fs+'" fill="'+c+'" fill-opacity=".95" text-anchor="middle" letter-spacing="1" font-weight="700">'+l1+'</text>'
+    +l2t
+    +'<line x1="14" y1="188" x2="116" y2="188" stroke="'+c+'" stroke-width=".4" stroke-opacity=".12"/>'
+    +'<text x="65" y="200" font-family="Helvetica,sans-serif" font-size="6.5" fill="'+c+'" fill-opacity=".45" text-anchor="middle" letter-spacing="2">'+lbl+'</text>'
+    +'</svg>';
+}
+
+function makeBack(){
+  return '<svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">'
+    +'<defs><linearGradient id="cbg2" x1="0" y1="0" x2=".4" y2="1"><stop offset="0%" stop-color="#3d2a7a"/><stop offset="50%" stop-color="#2a1f5e"/><stop offset="100%" stop-color="#341a6e"/></linearGradient>'
+    +'<linearGradient id="cbb2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c4b5fd" stop-opacity=".9"/><stop offset="50%" stop-color="#a78bfa" stop-opacity=".5"/><stop offset="100%" stop-color="#818cf8" stop-opacity=".8"/></linearGradient></defs>'
+    +'<rect width="130" height="210" rx="14" fill="url(#cbg2)"/>'
+    +'<rect x="1" y="1" width="128" height="208" rx="13" fill="none" stroke="url(#cbb2)" stroke-width="1.5"/>'
+    +'<rect x="6" y="6" width="118" height="198" rx="10" fill="none" stroke="#c4b5fd" stroke-width=".4" stroke-opacity=".18"/>'
+    +'<line x1="0" y1="70" x2="130" y2="70" stroke="#c4b5fd" stroke-width=".5" stroke-opacity=".3"/>'
+    +'<line x1="0" y1="140" x2="130" y2="140" stroke="#c4b5fd" stroke-width=".5" stroke-opacity=".3"/>'
+    +'<line x1="43" y1="0" x2="43" y2="210" stroke="#c4b5fd" stroke-width=".5" stroke-opacity=".22"/>'
+    +'<line x1="87" y1="0" x2="87" y2="210" stroke="#c4b5fd" stroke-width=".5" stroke-opacity=".22"/>'
+    +'<circle cx="43" cy="70" r="1.5" fill="#e0d9ff" fill-opacity=".75"/>'
+    +'<circle cx="87" cy="70" r="1.5" fill="#e0d9ff" fill-opacity=".75"/>'
+    +'<circle cx="43" cy="140" r="1.5" fill="#e0d9ff" fill-opacity=".75"/>'
+    +'<circle cx="87" cy="140" r="1.5" fill="#e0d9ff" fill-opacity=".75"/>'
+    +'<polygon points="65,20 68.5,30 79,30 71,37 74.5,47 65,40.5 55.5,47 59,37 51,30 61.5,30" fill="none" stroke="#e0d9ff" stroke-width="1.4" stroke-opacity=".8" stroke-linejoin="round"/>'
+    +'<path d="M65,58 Q80,66 80,82 Q80,98 65,106 Q72,98 72,82 Q72,66 65,58Z" fill="#c4b5fd" fill-opacity=".38"/>'
+    +'<text x="65" y="115" font-family="Georgia,serif" font-size="28" fill="#e8e0ff" fill-opacity=".85" text-anchor="middle" dominant-baseline="central">&#9789;</text>'
+    +'<text x="65" y="178" font-family="Helvetica,sans-serif" font-size="7" fill="#c4b5fd" fill-opacity=".55" text-anchor="middle" letter-spacing="3">TAROT</text>'
+    +'<line x1="25" y1="175" x2="42" y2="175" stroke="#c4b5fd" stroke-width=".6" stroke-opacity=".4"/>'
+    +'<line x1="88" y1="175" x2="105" y2="175" stroke="#c4b5fd" stroke-width=".6" stroke-opacity=".4"/>'
+    +'</svg>';
+}
+
+function renderCards(){
+  var grid=document.getElementById('card-grid');
+  grid.innerHTML='';grid.classList.remove('show');grid.style.cssText='';
+  currentCards.forEach(function(c,i){
+    var suit=getSuit(c.name);
+    var sc=SC[suit]||'#c4b5fd';
+    var el=document.createElement('div');el.className='tc sp';
+    el.style.setProperty('--d',(i*.05)+'s');
+    el.style.setProperty('--sc',sc);
+    var back=document.createElement('div');back.className='cface';back.innerHTML=makeBack();
+    var front=document.createElement('div');front.className='cface cfront';front.innerHTML=makeFront(c.name,suit);
+    el.appendChild(back);el.appendChild(front);
+    el.addEventListener('click',function(){
+      if(el.classList.contains('flipped')||el.classList.contains('dim'))return;
+      if(document.querySelectorAll('.tc.flipped').length>=2)return;
+      playFlip(); el.classList.add('flipped'); updateProg();
+    });
+    el.addEventListener('animationend',function(){el.classList.remove('sp');el.classList.add('rdy');},{once:true});
+    grid.appendChild(el);
+  });
+  setTimeout(function(){grid.classList.add('show');updateProg();},50);
+}
+
+function updateProg(){
+  var r=document.querySelectorAll('.tc.flipped').length;
+  var pd1=document.getElementById('pd1');var pd2=document.getElementById('pd2');var pl=document.getElementById('prog-lbl');
+  if(pd1)pd1.classList.toggle('on',r>=1);
+  if(pd2)pd2.classList.toggle('on',r>=2);
+  if(pl)pl.textContent=r+' / 2';
+  if(r>=2){
+    document.querySelectorAll('.tc:not(.flipped)').forEach(function(c){c.classList.add('dim');});
+    setTimeout(showDone,800);
+  }
+}
+
+function showDone(){
+  var grid=document.getElementById('card-grid');
+  grid.style.opacity='0';
+  document.getElementById('prog-wrap').style.opacity='0';
+  setTimeout(function(){
+    grid.style.display='none';
+    document.getElementById('prog-wrap').style.display='none';
+    var row=document.getElementById('done-row');row.innerHTML='';
+    document.querySelectorAll('.tc.flipped').forEach(function(card){
+      var wrap=document.createElement('div');wrap.className='done-card';
+      // --sc를 style 지우기 전에 먼저 저장
+      var sc = card.style.getPropertyValue('--sc').trim();
+      if(!sc || sc==='' || sc==='undefined') sc = getComputedStyle(card).getPropertyValue('--sc').trim();
+      if(!sc || sc==='' || sc==='undefined') sc='#c4b5fd';
+      var clone=card.cloneNode(true);
+      clone.removeAttribute('style');
+      clone.style.setProperty('--sc', sc); // 색 복원
+      clone.style.width='100%';
+      clone.style.opacity='1';
+      clone.style.transform='rotateY(180deg)';
+      clone.style.cursor='default';
+      clone.style.borderRadius='14px';
+      clone.style.boxShadow='0 0 0 2.5px '+sc+', 0 0 32px '+sc+', 0 8px 28px rgba(0,0,0,.8)';
+      wrap.appendChild(clone);row.appendChild(wrap);
+    });
+    document.getElementById('done-wrap').classList.add('show');
+    playDone();
+  },400);
+}
+
+function retryCards(){
+  document.getElementById('done-wrap').classList.remove('show');
+  document.getElementById('done-row').innerHTML='';
+  var grid=document.getElementById('card-grid');
+  grid.innerHTML='';grid.style.cssText='';grid.classList.remove('show');
+  var pw=document.getElementById('prog-wrap');pw.style.cssText='display:none';
+  var pd1=document.getElementById('pd1');var pd2=document.getElementById('pd2');
+  if(pd1)pd1.classList.remove('on');if(pd2)pd2.classList.remove('on');
+  var pl=document.getElementById('prog-lbl');if(pl)pl.textContent='0 / 2';
+  deckDone=false;
+  currentCards=TAROT.slice().sort(function(){return Math.random()-.5;}).slice(0,8).map(function(n){return{name:n};});
+  document.getElementById('deck-area').style.display='flex';
+  var dw=document.getElementById('deck-wrap');
+  dw.style.pointerEvents=''; // 클릭 복원
+  dw.onclick=onDeckClick;
+  dw.style.animation='df 3s ease-in-out infinite';
+  var cta=document.getElementById('dcta');var hint=document.getElementById('dhint');
+  if(cta){cta.textContent='TAP TO SHUFFLE';cta.style.opacity='1';}
+  if(hint){hint.textContent='마음속으로 질문을 떠올려보세요';hint.style.opacity='1';}
+  document.getElementById('board-sub').textContent='카드를 누르면 자동으로 섞입니다';
+}
+
+function showCapGuide(){
+  var msg=document.createElement('div');
+  msg.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1035;border:1px solid #a78bfa;border-radius:16px;padding:28px 32px;text-align:center;z-index:9999;color:#e8dfc8;font-family:DM Sans,sans-serif;max-width:300px;width:88%;box-shadow:0 0 50px rgba(124,58,237,.4)';
+  msg.innerHTML='<div style="font-size:2rem;margin-bottom:10px">&#128247;</div>'
+    +'<div style="font-family:Bebas Neue,sans-serif;font-size:1.2rem;letter-spacing:.06em;margin-bottom:10px">캡처 방법</div>'
+    +'<div style="font-size:.82rem;color:#8a7fa0;line-height:1.8"><b style="color:#c4b5fd">아이폰</b>: 전원+볼륨상 동시<br><b style="color:#c4b5fd">안드로이드</b>: 전원+볼륨하 동시<br><b style="color:#c4b5fd">PC</b>: Ctrl+Shift+S</div>'
+    +'<button onclick="this.parentNode.remove()" style="margin-top:16px;padding:9px 22px;background:#7c3aed;border:none;border-radius:8px;color:white;font-size:.78rem;cursor:pointer">확인</button>';
+  document.body.appendChild(msg);
+}
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
+}
+</script>
+</body>
+</html>
