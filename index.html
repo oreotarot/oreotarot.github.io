@@ -92,8 +92,8 @@ input[type=password]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(167
 .deck-wrap{position:relative;width:160px;height:256px;cursor:pointer;margin-bottom:28px;filter:drop-shadow(0 0 28px rgba(124,58,237,.65));animation:df 3s ease-in-out infinite;transition:filter .3s;background:none!important;border:none!important;outline:none!important;box-shadow:none!important;overflow:hidden;border-radius:14px}
 .deck-wrap:hover{filter:drop-shadow(0 0 44px rgba(167,139,250,.9))}
 @keyframes df{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.dcta{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--acc);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;animation:pulse 2s ease-in-out infinite;text-align:center;min-height:1.4em;transition:opacity .3s ease;display:block}
-.dhint{font-size:.95rem;color:var(--txt);opacity:.65;text-align:center;padding:0 24px;min-height:1.6em;transition:opacity .3s ease;display:block}
+.dcta{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--acc);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;animation:pulse 2s ease-in-out infinite;text-align:center;min-height:1.4em;display:block}
+.dhint{font-size:.95rem;color:var(--txt);opacity:.65;text-align:center;padding:0 24px;min-height:1.6em;display:block}
 @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
 /* PROGRESS */
 .prog-wrap{display:none;align-items:center;justify-content:center;gap:10px;margin-bottom:14px;font-family:'Bebas Neue',cursive;font-size:1.1rem;color:#fff;letter-spacing:.12em}
@@ -365,61 +365,67 @@ var currentCards=[];
 var deckDone=false;
 var ctx=null;
 
-// AUDIO
+// AUDIO - 웹/모바일 모두 호환
 var AC = null;
 var AC_UNLOCKED = false;
 
+// AudioContext는 항상 터치/클릭 이벤트 안에서만 생성 (모바일 정책)
 function getAC() {
-  if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+  if (!AC) {
+    try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
   return AC;
 }
 
-// 모바일 오디오 잠금 해제: 첫 터치에서 묵음 버퍼 재생으로 AudioContext 활성화
+// 터치/클릭 시 호출 - Context 생성 + 묵음재생 + resume 한번에
 function unlockAudio() {
   if (AC_UNLOCKED) return;
-  var c = getAC();
-  var buf = c.createBuffer(1, 1, 22050);
-  var src = c.createBufferSource();
-  src.buffer = buf;
-  src.connect(c.destination);
-  src.start(0);
-  if (c.state === 'suspended') {
-    c.resume().then(function() { AC_UNLOCKED = true; }).catch(function(){});
-  } else {
-    AC_UNLOCKED = true;
-  }
+  try {
+    // Context가 없으면 이 시점(터치 이벤트 안)에서 생성
+    if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+    // 묵음 버퍼로 즉시 unlock
+    var buf = AC.createBuffer(1, 1, 22050);
+    var src = AC.createBufferSource();
+    src.buffer = buf;
+    src.connect(AC.destination);
+    src.start(0);
+    // suspended 상태면 resume
+    if (AC.state === 'suspended') {
+      AC.resume().then(function() { AC_UNLOCKED = true; });
+    } else {
+      AC_UNLOCKED = true;
+    }
+  } catch(e) {}
 }
 
 function playSound(fn) {
-  var c = getAC();
-  if (c.state === 'suspended') {
-    c.resume().then(function() {
-      try { fn(c); } catch(e) {}
-    }).catch(function(){});
+  if (!AC) return; // unlock 전에는 무시
+  if (AC.state === 'suspended') {
+    AC.resume().then(function() { try { fn(AC); } catch(e) {} });
   } else {
-    try { fn(c); } catch(e) {}
+    try { fn(AC); } catch(e) {}
   }
 }
 
 function tone(c, freq, vol, start, dur) {
-  var o = c.createOscillator();
-  var g = c.createGain();
-  o.frequency.value = freq;
-  o.type = 'sine';
-  var t = c.currentTime;
-  g.gain.setValueAtTime(0, t + start);
-  g.gain.linearRampToValueAtTime(vol, t + start + 0.005);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + start + dur);
-  o.connect(g); g.connect(c.destination);
-  o.start(t + start);
-  o.stop(t + start + dur + 0.05);
+  try {
+    var o = c.createOscillator();
+    var g = c.createGain();
+    o.frequency.value = freq;
+    o.type = 'sine';
+    var t = c.currentTime;
+    g.gain.setValueAtTime(0, t + start);
+    g.gain.linearRampToValueAtTime(vol, t + start + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + start + dur);
+    o.connect(g); g.connect(c.destination);
+    o.start(t + start);
+    o.stop(t + start + dur + 0.05);
+  } catch(e) {}
 }
 
 function playShuffle() {
   playSound(function(c) {
-    for (var i = 0; i < 8; i++) {
-      tone(c, 300 + i*50, 0.18, i*0.06, 0.08);
-    }
+    for (var i = 0; i < 8; i++) tone(c, 300+i*50, 0.18, i*0.06, 0.08);
   });
 }
 function playSpread() {
@@ -445,9 +451,9 @@ function playDone() {
   });
 }
 
-// 첫 터치/클릭에서 오디오 잠금 해제 (once: 한 번만 실행)
-document.addEventListener('touchstart', unlockAudio, {once: true, passive: true});
-document.addEventListener('click', unlockAudio, {once: true});
+// 모든 터치/클릭에서 unlock 시도 (once 제거 - 혹시 실패해도 재시도)
+document.addEventListener('touchstart', unlockAudio, {passive: true});
+document.addEventListener('click', unlockAudio);
 
 
 
@@ -685,26 +691,14 @@ function onDeckClick(){
   var wrap=document.getElementById('deck-wrap');
   var cta=document.getElementById('dcta');
   var hint=document.getElementById('dhint');
-  // 즉시 클릭 비활성화 (중복 실행 방지)
   wrap.style.pointerEvents='none';
   wrap.onclick=null;
-  // 모바일: 첫 터치일 수 있으므로 unlock 먼저 실행 후 소리
   unlockAudio();
-  setTimeout(function(){ playShuffle(); }, 80);
+  setTimeout(function(){ playShuffle(); }, 200);
   wrap.style.animation='shake .65s ease-in-out';
-  // 글자 겹침 방지: 순차적으로 딜레이 고정
-  setTimeout(function(){
-    cta.style.opacity='0'; hint.style.opacity='0';
-    setTimeout(function(){ cta.textContent='CONNECTING...'; hint.textContent='당신의 에너지와 연결 중입니다'; cta.style.opacity='1'; hint.style.opacity='1'; }, 300);
-  }, 200);
-  setTimeout(function(){
-    cta.style.opacity='0'; hint.style.opacity='0';
-    setTimeout(function(){ cta.textContent='READING...'; hint.textContent='질문의 기운을 읽고 있습니다'; cta.style.opacity='1'; hint.style.opacity='1'; }, 300);
-  }, 1150);
-  setTimeout(function(){
-    cta.style.opacity='0'; hint.style.opacity='0';
-    setTimeout(function(){ cta.textContent='CARDS READY ✦'; hint.textContent='운명의 카드가 준비되었습니다'; cta.style.opacity='1'; hint.style.opacity='1'; }, 300);
-  }, 2000);
+  setTimeout(function(){ cta.textContent='CONNECTING...'; hint.textContent='당신의 에너지와 연결 중입니다'; }, 300);
+  setTimeout(function(){ cta.textContent='READING...'; hint.textContent='질문의 기운을 읽고 있습니다'; }, 1200);
+  setTimeout(function(){ cta.textContent='CARDS READY ✦'; hint.textContent='운명의 카드가 준비되었습니다'; }, 2100);
   setTimeout(function(){
     playSpread();
     document.getElementById('deck-area').style.display='none';
@@ -715,36 +709,100 @@ function onDeckClick(){
 }
 
 function makeFront(name,suit){
-  var c=SC[suit]||'#c4b5fd';
-  var bgs={Major:'#1a1035',Wands:'#1a0d00',Cups:'#00091a',Swords:'#0a0d12',Pentacles:'#001a08'};
-  var bg=bgs[suit]||'#1a1035';
-  var paths={
-    Major:'<polygon points="65,50 68.1,61 79,61 70.4,67.6 73.5,78.5 65,72 56.5,78.5 59.6,67.6 51,61 61.9,61" fill="none" stroke="'+c+'" stroke-width="2" stroke-opacity=".88" stroke-linejoin="round"/>',
-    Wands:'<line x1="65" y1="50" x2="65" y2="106" stroke="'+c+'" stroke-width="3" stroke-opacity=".88" stroke-linecap="round"/><path d="M52,62 Q65,56 78,62" fill="none" stroke="'+c+'" stroke-width="2" stroke-opacity=".75" stroke-linecap="round"/><path d="M56,72 Q65,67 74,72" fill="none" stroke="'+c+'" stroke-width="1.5" stroke-opacity=".6" stroke-linecap="round"/><circle cx="65" cy="50" r="3.5" fill="'+c+'" fill-opacity=".85"/>',
-    Cups:'<path d="M48,60 L50,88 Q65,100 80,88 L82,60 Q75,57 65,57 Q55,57 48,60Z" fill="none" stroke="'+c+'" stroke-width="2" stroke-opacity=".88" stroke-linejoin="round"/><line x1="53" y1="96" x2="77" y2="96" stroke="'+c+'" stroke-width="2.5" stroke-opacity=".8" stroke-linecap="round"/>',
-    Swords:'<line x1="65" y1="47" x2="65" y2="109" stroke="'+c+'" stroke-width="3" stroke-opacity=".88" stroke-linecap="round"/><line x1="49" y1="69" x2="81" y2="69" stroke="'+c+'" stroke-width="2" stroke-opacity=".75" stroke-linecap="round"/><path d="M59,105 L65,109 L71,105" fill="none" stroke="'+c+'" stroke-width="1.8" stroke-opacity=".7" stroke-linejoin="round"/>',
-    Pentacles:'<polygon points="65,50 68.7,61.3 80.6,61.3 71,68.1 74.7,79.4 65,72.6 55.3,79.4 59,68.1 49.4,61.3 61.3,61.3" fill="none" stroke="'+c+'" stroke-width="2" stroke-opacity=".88" stroke-linejoin="round"/><circle cx="65" cy="79" r="23" fill="none" stroke="'+c+'" stroke-width=".8" stroke-opacity=".3"/>'
-  };
-  var sym=paths[suit]||paths.Major;
+  var col=SC[suit]||'#c4b5fd';
+  var bgs={Major:'#120a2e',Wands:'#1a0800',Cups:'#000d1a',Swords:'#08090f',Pentacles:'#001508'};
+  var bg=bgs[suit]||'#120a2e';
+
+  // 수트별 완전히 다른 배경 패턴
+  var pattern='';
+  if(suit==='Major'){
+    // 별자리 패턴
+    pattern='<circle cx="20" cy="25" r="1.2" fill="'+col+'" fill-opacity=".3"/>'
+      +'<circle cx="40" cy="15" r="0.8" fill="'+col+'" fill-opacity=".25"/>'
+      +'<circle cx="100" cy="30" r="1" fill="'+col+'" fill-opacity=".28"/>'
+      +'<circle cx="115" cy="18" r="1.3" fill="'+col+'" fill-opacity=".22"/>'
+      +'<circle cx="18" cy="185" r="1" fill="'+col+'" fill-opacity=".25"/>'
+      +'<circle cx="108" cy="190" r="1.2" fill="'+col+'" fill-opacity=".2"/>'
+      +'<line x1="20" y1="25" x2="40" y2="15" stroke="'+col+'" stroke-width=".4" stroke-opacity=".15"/>'
+      +'<line x1="40" y1="15" x2="100" y2="30" stroke="'+col+'" stroke-width=".4" stroke-opacity=".15"/>'
+      +'<line x1="100" y1="30" x2="115" y2="18" stroke="'+col+'" stroke-width=".4" stroke-opacity=".15"/>';
+  } else if(suit==='Wands'){
+    // 불꽃/사선 패턴
+    pattern='<line x1="0" y1="40" x2="30" y2="0" stroke="'+col+'" stroke-width=".6" stroke-opacity=".12"/>'
+      +'<line x1="20" y1="40" x2="50" y2="0" stroke="'+col+'" stroke-width=".6" stroke-opacity=".1"/>'
+      +'<line x1="100" y1="210" x2="130" y2="170" stroke="'+col+'" stroke-width=".6" stroke-opacity=".12"/>'
+      +'<line x1="80" y1="210" x2="110" y2="170" stroke="'+col+'" stroke-width=".6" stroke-opacity=".1"/>'
+      +'<circle cx="65" cy="25" r="6" fill="none" stroke="'+col+'" stroke-width=".8" stroke-opacity=".2"/>'
+      +'<circle cx="65" cy="25" r="3" fill="'+col+'" fill-opacity=".15"/>';
+  } else if(suit==='Cups'){
+    // 물결/원 패턴
+    pattern='<path d="M10,40 Q32,30 54,40 Q76,50 98,40 Q120,30 130,35" fill="none" stroke="'+col+'" stroke-width=".7" stroke-opacity=".15"/>'
+      +'<path d="M10,55 Q32,45 54,55 Q76,65 98,55 Q120,45 130,50" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".1"/>'
+      +'<path d="M10,170 Q32,160 54,170 Q76,180 98,170 Q120,160 130,165" fill="none" stroke="'+col+'" stroke-width=".7" stroke-opacity=".15"/>'
+      +'<circle cx="65" cy="22" r="8" fill="none" stroke="'+col+'" stroke-width=".8" stroke-opacity=".2"/>';
+  } else if(suit==='Swords'){
+    // 격자/십자 패턴
+    pattern='<line x1="0" y1="0" x2="130" y2="210" stroke="'+col+'" stroke-width=".5" stroke-opacity=".08"/>'
+      +'<line x1="130" y1="0" x2="0" y2="210" stroke="'+col+'" stroke-width=".5" stroke-opacity=".08"/>'
+      +'<rect x="52" y="12" width="26" height="26" fill="none" stroke="'+col+'" stroke-width=".7" stroke-opacity=".2" transform="rotate(45 65 25)"/>';
+  } else if(suit==='Pentacles'){
+    // 육각형/자연 패턴
+    pattern='<polygon points="65,10 73,18 73,30 65,38 57,30 57,18" fill="none" stroke="'+col+'" stroke-width=".7" stroke-opacity=".2"/>'
+      +'<circle cx="20" cy="50" r="5" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".15"/>'
+      +'<circle cx="110" cy="50" r="5" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".15"/>'
+      +'<circle cx="20" cy="165" r="5" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".15"/>'
+      +'<circle cx="110" cy="165" r="5" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".15"/>';
+  }
+
+  // 수트별 메인 심볼 (더 크고 화려하게)
+  var sym='';
+  if(suit==='Major'){
+    sym='<polygon points="65,44 69.5,58 84,58 73,67 77.5,81 65,72 52.5,81 57,67 46,58 60.5,58" fill="none" stroke="'+col+'" stroke-width="2.2" stroke-opacity=".9" stroke-linejoin="round"/>'
+      +'<circle cx="65" cy="62" r="28" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".2"/>';
+  } else if(suit==='Wands'){
+    sym='<line x1="65" y1="42" x2="65" y2="112" stroke="'+col+'" stroke-width="3.5" stroke-opacity=".9" stroke-linecap="round"/>'
+      +'<path d="M47,58 Q65,50 83,58" fill="none" stroke="'+col+'" stroke-width="2.2" stroke-opacity=".8" stroke-linecap="round"/>'
+      +'<path d="M52,72 Q65,65 78,72" fill="none" stroke="'+col+'" stroke-width="1.8" stroke-opacity=".65" stroke-linecap="round"/>'
+      +'<path d="M57,84 Q65,79 73,84" fill="none" stroke="'+col+'" stroke-width="1.4" stroke-opacity=".5" stroke-linecap="round"/>'
+      +'<circle cx="65" cy="42" r="4.5" fill="'+col+'" fill-opacity=".9"/>'
+      +'<circle cx="65" cy="42" r="8" fill="none" stroke="'+col+'" stroke-width=".8" stroke-opacity=".4"/>';
+  } else if(suit==='Cups'){
+    sym='<path d="M44,56 L47,92 Q65,108 83,92 L86,56 Q78,52 65,52 Q52,52 44,56Z" fill="'+col+'" fill-opacity=".12" stroke="'+col+'" stroke-width="2.2" stroke-opacity=".88" stroke-linejoin="round"/>'
+      +'<line x1="49" y1="100" x2="81" y2="100" stroke="'+col+'" stroke-width="3" stroke-opacity=".8" stroke-linecap="round"/>'
+      +'<path d="M55,56 Q65,44 75,56" fill="'+col+'" fill-opacity=".15" stroke="'+col+'" stroke-width="1.2" stroke-opacity=".5"/>';
+  } else if(suit==='Swords'){
+    sym='<line x1="65" y1="40" x2="65" y2="112" stroke="'+col+'" stroke-width="3.5" stroke-opacity=".9" stroke-linecap="round"/>'
+      +'<line x1="46" y1="65" x2="84" y2="65" stroke="'+col+'" stroke-width="2.2" stroke-opacity=".8" stroke-linecap="round"/>'
+      +'<path d="M57,108 L65,115 L73,108" fill="none" stroke="'+col+'" stroke-width="2" stroke-opacity=".75" stroke-linejoin="round"/>'
+      +'<polygon points="65,40 68,48 65,44 62,48" fill="'+col+'" fill-opacity=".7"/>';
+  } else if(suit==='Pentacles'){
+    sym='<polygon points="65,44 69.8,58.5 85,58.5 73.1,67.5 77.9,82 65,73 52.1,82 56.9,67.5 45,58.5 60.2,58.5" fill="none" stroke="'+col+'" stroke-width="2.2" stroke-opacity=".9" stroke-linejoin="round"/>'
+      +'<circle cx="65" cy="63" r="26" fill="none" stroke="'+col+'" stroke-width="1.2" stroke-opacity=".3"/>'
+      +'<circle cx="65" cy="63" r="18" fill="'+col+'" fill-opacity=".06"/>';
+  }
+
   var pts=name.split(' ');var l1=name.toUpperCase(),l2='';
   if(name.length>13){var m=Math.max(1,Math.floor(pts.length/2));l1=pts.slice(0,m).join(' ').toUpperCase();l2=pts.slice(m).join(' ').toUpperCase();}
   var fs=name.length>16?9:name.length>12?11:13;
-  var y1=l2?155:163;
-  var l2t=l2?('<text x="65" y="167" font-family="Helvetica,sans-serif" font-size="'+fs+'" fill="'+c+'" fill-opacity=".95" text-anchor="middle" letter-spacing="1" font-weight="700">'+l2+'</text>'):'';
+  var y1=l2?152:162;
+  var l2t=l2?('<text x="65" y="165" font-family="Helvetica,sans-serif" font-size="'+fs+'" fill="'+col+'" fill-opacity=".95" text-anchor="middle" letter-spacing="1" font-weight="700">'+l2+'</text>'):'';
   var lbl=suit==='Major'?'MAJOR ARCANA':suit.toUpperCase();
+
   return '<svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">'
-    +'<defs><linearGradient id="fg" x1="0" y1="0" x2=".3" y2="1"><stop offset="0%" stop-color="'+bg+'"/><stop offset="100%" stop-color="#080810"/></linearGradient>'
-    +'<radialGradient id="rg" cx=".5" cy=".44" r=".42"><stop offset="0%" stop-color="'+c+'" stop-opacity=".14"/><stop offset="100%" stop-color="'+c+'" stop-opacity="0"/></radialGradient></defs>'
-    +'<rect width="130" height="210" rx="12" fill="url(#fg)"/><rect width="130" height="210" rx="12" fill="url(#rg)"/>'
-    +'<rect x="6" y="6" width="118" height="198" rx="8" fill="none" stroke="'+c+'" stroke-width=".3" stroke-opacity=".1"/>'
-    +'<circle cx="65" cy="78" r="44" fill="'+c+'" fill-opacity=".04"/>'
-    +'<circle cx="65" cy="78" r="36" fill="none" stroke="'+c+'" stroke-width=".8" stroke-opacity=".25"/>'
+    +'<defs>'
+    +'<linearGradient id="fg'+suit+'" x1="0" y1="0" x2=".4" y2="1"><stop offset="0%" stop-color="'+bg+'"/><stop offset="100%" stop-color="#050508"/></linearGradient>'
+    +'<radialGradient id="rg'+suit+'" cx=".5" cy=".38" r=".5"><stop offset="0%" stop-color="'+col+'" stop-opacity=".18"/><stop offset="100%" stop-color="'+col+'" stop-opacity="0"/></radialGradient>'
+    +'</defs>'
+    +'<rect width="130" height="210" rx="12" fill="url(#fg'+suit+')"/>'
+    +'<rect width="130" height="210" rx="12" fill="url(#rg'+suit+')"/>'
+    +'<rect x="5" y="5" width="120" height="200" rx="9" fill="none" stroke="'+col+'" stroke-width=".5" stroke-opacity=".18"/>'
+    +pattern
     +sym
-    +'<line x1="14" y1="140" x2="116" y2="140" stroke="'+c+'" stroke-width=".6" stroke-opacity=".18"/>'
-    +'<text x="65" y="'+y1+'" font-family="Helvetica,sans-serif" font-size="'+fs+'" fill="'+c+'" fill-opacity=".95" text-anchor="middle" letter-spacing="1" font-weight="700">'+l1+'</text>'
+    +'<line x1="14" y1="138" x2="116" y2="138" stroke="'+col+'" stroke-width=".8" stroke-opacity=".25"/>'
+    +'<text x="65" y="'+y1+'" font-family="Helvetica,sans-serif" font-size="'+fs+'" fill="'+col+'" fill-opacity=".98" text-anchor="middle" letter-spacing="1" font-weight="700">'+l1+'</text>'
     +l2t
-    +'<line x1="14" y1="188" x2="116" y2="188" stroke="'+c+'" stroke-width=".4" stroke-opacity=".12"/>'
-    +'<text x="65" y="200" font-family="Helvetica,sans-serif" font-size="6.5" fill="'+c+'" fill-opacity=".45" text-anchor="middle" letter-spacing="2">'+lbl+'</text>'
+    +'<line x1="14" y1="188" x2="116" y2="188" stroke="'+col+'" stroke-width=".4" stroke-opacity=".15"/>'
+    +'<text x="65" y="200" font-family="Helvetica,sans-serif" font-size="6.5" fill="'+col+'" fill-opacity=".5" text-anchor="middle" letter-spacing="2">'+lbl+'</text>'
     +'</svg>';
 }
 
@@ -787,7 +845,7 @@ function renderCards(){
     el.addEventListener('click',function(){
       if(el.classList.contains('flipped')||el.classList.contains('dim'))return;
       if(document.querySelectorAll('.tc.flipped').length>=2)return;
-      unlockAudio(); setTimeout(function(){ playFlip(); },50); el.classList.add('flipped'); updateProg();
+      unlockAudio(); setTimeout(function(){ playFlip(); },150); el.classList.add('flipped'); updateProg();
     });
     el.addEventListener('animationend',function(){el.classList.remove('sp');el.classList.add('rdy');},{once:true});
     grid.appendChild(el);
