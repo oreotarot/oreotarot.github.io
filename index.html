@@ -100,7 +100,7 @@ input[type=password]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(167
 .pdot{width:9px;height:9px;border-radius:50%;background:rgba(167,139,250,.25);transition:all .3s}
 .pdot.on{background:#c4b5fd;box-shadow:0 0 10px rgba(196,181,253,.8);transform:scale(1.3)}
 /* CARDS */
-.card-grid{display:none;grid-template-columns:repeat(4,1fr);gap:8px;max-width:500px;width:100%;opacity:0;padding:0 8px}
+.card-grid{display:none;grid-template-columns:repeat(4,1fr);gap:8px;max-width:500px;width:100%;padding:0 8px}
 .card-grid.show{display:grid;opacity:1}
 @media(max-width:480px){.card-grid{gap:6px}}
 .tc{aspect-ratio:130/210;border-radius:12px;cursor:pointer;position:relative;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,0,.2,1),box-shadow .3s;box-shadow:0 0 0 1px rgba(255,255,255,.2),0 6px 20px rgba(0,0,0,.6);opacity:0}
@@ -115,8 +115,8 @@ input[type=password]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(167
 .cface{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
 .cfront{transform:rotateY(180deg)}
 /* DONE */
-.done-wrap{display:none;flex-direction:column;align-items:center;width:100%;padding:0 12px}
-.done-wrap.show{display:flex}
+.done-wrap{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;flex:1;padding:0 12px}
+.done-wrap.show{display:flex;flex:1}
 .done-row{display:flex;gap:10px;justify-content:center;margin-bottom:28px;flex-wrap:nowrap}
 .done-card{width:clamp(80px,27vw,120px);border-radius:12px;flex-shrink:0}
 .done-title{font-family:'Bebas Neue',cursive;font-size:clamp(1.3rem,5vw,1.6rem);letter-spacing:.08em;text-align:center;margin-bottom:8px}
@@ -209,29 +209,26 @@ input[type=password]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(167
   <div class="deck-area" id="deck-area">
     <div class="deck-wrap" id="deck-wrap" onclick="onDeckClick()">
 <svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%">
-  <defs><clipPath id="clip1"><rect width="130" height="210" rx="14"/></clipPath></defs>
-  <g clip-path="url(#clip1)" opacity="0.5">
-    <g transform="rotate(-6,65,105)">
-      <rect width="130" height="210" rx="14" fill="#1d1050"/>
-      <rect x="2" y="2" width="126" height="206" rx="12" fill="none" stroke="#8b6fe0" stroke-width="1.5"/>
+  <defs><clipPath id="cl1"><rect width="130" height="210" rx="14"/></clipPath></defs>
+  <g clip-path="url(#cl1)">
+    <g transform="rotate(-6,65,105)" opacity="0.45">
+      <rect x="1" y="1" width="128" height="208" rx="13" fill="none" stroke="#7c5cd6" stroke-width="2"/>
     </g>
   </g>
 </svg>
 <svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%">
-  <defs><clipPath id="clip2"><rect width="130" height="210" rx="14"/></clipPath></defs>
-  <g clip-path="url(#clip2)" opacity="0.7">
-    <g transform="rotate(4,65,105)">
-      <rect width="130" height="210" rx="14" fill="#1d1050"/>
-      <rect x="2" y="2" width="126" height="206" rx="12" fill="none" stroke="#9b7ff0" stroke-width="1.5"/>
+  <defs><clipPath id="cl2"><rect width="130" height="210" rx="14"/></clipPath></defs>
+  <g clip-path="url(#cl2)">
+    <g transform="rotate(4,65,105)" opacity="0.6">
+      <rect x="1" y="1" width="128" height="208" rx="13" fill="none" stroke="#9b7ff0" stroke-width="2"/>
     </g>
   </g>
 </svg>
 <svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%">
-  <defs><clipPath id="clip3"><rect width="130" height="210" rx="14"/></clipPath></defs>
-  <g clip-path="url(#clip3)" opacity="0.85">
-    <g transform="rotate(-2,65,105)">
-      <rect width="130" height="210" rx="14" fill="#231558"/>
-      <rect x="2" y="2" width="126" height="206" rx="12" fill="none" stroke="#a78bfa" stroke-width="1.5"/>
+  <defs><clipPath id="cl3"><rect width="130" height="210" rx="14"/></clipPath></defs>
+  <g clip-path="url(#cl3)">
+    <g transform="rotate(-2,65,105)" opacity="0.78">
+      <rect x="1" y="1" width="128" height="208" rx="13" fill="none" stroke="#b39dfa" stroke-width="2"/>
     </g>
   </g>
 </svg>
@@ -382,7 +379,11 @@ function showToast(msg){
     }
     if(!active||Date.now()>exp){setTimeout(function(){showPage('page-expired');},300);return;}
     sessionExpiry=exp;
-    currentCards=TAROT.slice().sort(function(){return Math.random()-.5;}).slice(0,8).map(function(n){return{name:n};});
+    (function(){
+  var deck=TAROT.slice();
+  for(var i=deck.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=deck[i];deck[i]=deck[j];deck[j]=t;}
+  currentCards=deck.slice(0,8).map(function(n){return{name:n};});
+})();
     setTimeout(function(){
       showPage('page-splash');
       setTimeout(function(){ try{ playSpread(); }catch(e){} }, 500);
@@ -786,17 +787,21 @@ function renderCards(){
     grid.appendChild(el);
   });
   // 한 프레임 뒤 sp 클래스 일괄 부여 + show (모든 카드 동시 등장)
-  requestAnimationFrame(function(){
+  // 브라우저가 display:none → grid 전환 완전히 처리한 뒤 애니메이션 시작
+  setTimeout(function(){
+    grid.classList.add('show');
+    // show 된 다음 프레임에 sp 부여해야 첫 카드 튀어나오는 현상 없음
     requestAnimationFrame(function(){
-      var cards=grid.querySelectorAll('.tc');
-      cards.forEach(function(el,i){
-        el.classList.add('sp');
-        el.style.setProperty('--d',(i*.06)+'s');
+      requestAnimationFrame(function(){
+        var cards=grid.querySelectorAll('.tc');
+        cards.forEach(function(el,i){
+          el.classList.add('sp');
+          el.style.setProperty('--d',(i*.06)+'s');
+        });
+        updateProg();
       });
-      grid.classList.add('show');
-      updateProg();
     });
-  });
+  },50);
 }
 
 function updateProg(){
@@ -852,7 +857,11 @@ function retryCards(){
   if(pd1)pd1.classList.remove('on');if(pd2)pd2.classList.remove('on');if(pd3)pd3.classList.remove('on');
   var pl=document.getElementById('prog-lbl');if(pl)pl.textContent='0 / 3';
   deckDone=false;
-  currentCards=TAROT.slice().sort(function(){return Math.random()-.5;}).slice(0,8).map(function(n){return{name:n};});
+  (function(){
+  var deck=TAROT.slice();
+  for(var i=deck.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=deck[i];deck[i]=deck[j];deck[j]=t;}
+  currentCards=deck.slice(0,8).map(function(n){return{name:n};});
+})();
   document.getElementById('deck-area').style.display='flex';
   var dw=document.getElementById('deck-wrap');
   dw.style.pointerEvents=''; // 클릭 복원
