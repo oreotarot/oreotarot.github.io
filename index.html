@@ -108,7 +108,7 @@ input[type=password]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(167
 @keyframes ci{from{opacity:0;transform:scale(.5) translateY(20px)}to{opacity:1;transform:none}}
 .tc.rdy{opacity:1}
 .tc.rdy:hover:not(.flipped){transform:translateY(-8px) scale(1.05);box-shadow:0 0 0 1.5px rgba(255,255,255,.6),0 16px 36px rgba(0,0,0,.5)}
-.tc.flipped{transform:rotateY(180deg)!important;cursor:default;box-shadow:0 0 0 2px var(--sc,#c4b5fd),0 0 24px var(--sc,#c4b5fd),0 8px 28px rgba(0,0,0,.7)!important}
+.tc.flipped{transform:rotateY(180deg)!important;cursor:default;opacity:1!important;box-shadow:0 0 0 2px var(--sc,#c4b5fd),0 0 24px var(--sc,#c4b5fd),0 8px 28px rgba(0,0,0,.7)!important}
 .tc.flipped:hover{transform:rotateY(180deg)!important}
 .tc.dim:not(.flipped){opacity:.3;cursor:not-allowed}
 .tc.dim:not(.flipped):hover{transform:none!important}
@@ -118,7 +118,7 @@ input[type=password]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(167
 .done-wrap{display:none;flex-direction:column;align-items:center;width:100%;padding:0 16px}
 .done-wrap.show{display:flex}
 .done-row{display:flex;gap:16px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}
-.done-card{width:clamp(120px,36vw,160px);border-radius:14px}
+.done-card{width:clamp(90px,28vw,140px);border-radius:14px}
 .done-title{font-family:'Bebas Neue',cursive;font-size:clamp(1.4rem,5vw,1.8rem);letter-spacing:.08em;text-align:center;margin-bottom:8px}
 .done-sub{font-size:.88rem;color:var(--txt);opacity:.75;text-align:center;margin-bottom:24px;line-height:1.7}
 .cap-btn{display:flex;align-items:center;gap:8px;padding:13px 28px;background:rgba(167,139,250,.1);border:1px solid var(--acc);border-radius:12px;cursor:pointer;font-family:'DM Mono',monospace;font-size:.7rem;color:var(--acc);letter-spacing:.1em;transition:all .25s}
@@ -208,7 +208,7 @@ input[type=password]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(167
   <div class="bsub" id="board-sub">카드를 누르면 자동으로 섞입니다</div>
   <div class="deck-area" id="deck-area">
     <div class="deck-wrap" id="deck-wrap" onclick="onDeckClick()">
-<svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;transform:rotate(-6deg) translate(-5px,-3px)"><defs>
+<svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;transform:rotate(-6deg);transform-origin:center center"><defs>
 <linearGradient id="cbg" x1="0" y1="0" x2="0.4" y2="1">
   <stop offset="0%" stop-color="#3d2a7a"/>
   <stop offset="50%" stop-color="#2a1f5e"/>
@@ -237,7 +237,7 @@ input[type=password]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(167
 <text x="65" y="178" font-family="Helvetica,sans-serif" font-size="7" fill="#c4b5fd" fill-opacity="0.55" text-anchor="middle" letter-spacing="3">TAROT</text>
 <line x1="25" y1="175" x2="42" y2="175" stroke="#c4b5fd" stroke-width="0.6" stroke-opacity="0.4"/>
 <line x1="88" y1="175" x2="105" y2="175" stroke="#c4b5fd" stroke-width="0.6" stroke-opacity="0.4"/></svg>
-<svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;transform:rotate(3deg) translate(4px,-2px)"><defs>
+<svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;transform:rotate(3deg);transform-origin:center center"><defs>
 <linearGradient id="cbg" x1="0" y1="0" x2="0.4" y2="1">
   <stop offset="0%" stop-color="#3d2a7a"/>
   <stop offset="50%" stop-color="#2a1f5e"/>
@@ -266,7 +266,7 @@ input[type=password]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(167
 <text x="65" y="178" font-family="Helvetica,sans-serif" font-size="7" fill="#c4b5fd" fill-opacity="0.55" text-anchor="middle" letter-spacing="3">TAROT</text>
 <line x1="25" y1="175" x2="42" y2="175" stroke="#c4b5fd" stroke-width="0.6" stroke-opacity="0.4"/>
 <line x1="88" y1="175" x2="105" y2="175" stroke="#c4b5fd" stroke-width="0.6" stroke-opacity="0.4"/></svg>
-<svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;transform:rotate(-1deg) translate(-2px,1px)"><defs>
+<svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;transform:rotate(-1deg);transform-origin:center center"><defs>
 <linearGradient id="cbg" x1="0" y1="0" x2="0.4" y2="1">
   <stop offset="0%" stop-color="#3d2a7a"/>
   <stop offset="50%" stop-color="#2a1f5e"/>
@@ -331,7 +331,8 @@ input[type=password]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(167
   <div class="prog-wrap" id="prog-wrap">
     <div class="pdot" id="pd1"></div>
     <div class="pdot" id="pd2"></div>
-    <span id="prog-lbl">0 / 2</span>
+    <div class="pdot" id="pd3"></div>
+    <span id="prog-lbl">0 / 3</span>
   </div>
   <div class="card-grid" id="card-grid"></div>
   <div class="done-wrap" id="done-wrap">
@@ -639,7 +640,7 @@ function onDeckClick(){
   setTimeout(function(){
     playSpread();
     document.getElementById('deck-area').style.display='none';
-    document.getElementById('board-sub').textContent='마음이 이끄는 카드를 2장 선택해주세요';
+    document.getElementById('board-sub').textContent='마음이 이끄는 카드를 3장 선택해주세요';
     document.getElementById('prog-wrap').style.display='flex';
     renderCards();
   }, 3000);
@@ -828,8 +829,9 @@ function renderCards(){
     var front=document.createElement('div');front.className='cface cfront';front.innerHTML=makeFront(c.name,suit);
     el.appendChild(back);el.appendChild(front);
     el.addEventListener('click',function(){
+      if(!el.classList.contains('rdy'))return;
       if(el.classList.contains('flipped')||el.classList.contains('dim'))return;
-      if(document.querySelectorAll('.tc.flipped').length>=2)return;
+      if(document.querySelectorAll('.tc.flipped').length>=3)return;
       unlockAudio(); setTimeout(function(){ playFlip(); },150); el.classList.add('flipped'); updateProg();
     });
     el.addEventListener('animationend',function(){el.classList.remove('sp');el.classList.add('rdy');},{once:true});
@@ -840,11 +842,12 @@ function renderCards(){
 
 function updateProg(){
   var r=document.querySelectorAll('.tc.flipped').length;
-  var pd1=document.getElementById('pd1');var pd2=document.getElementById('pd2');var pl=document.getElementById('prog-lbl');
+  var pd1=document.getElementById('pd1');var pd2=document.getElementById('pd2');var pd3=document.getElementById('pd3');var pl=document.getElementById('prog-lbl');
   if(pd1)pd1.classList.toggle('on',r>=1);
   if(pd2)pd2.classList.toggle('on',r>=2);
-  if(pl)pl.textContent=r+' / 2';
-  if(r>=2){
+  if(pd3)pd3.classList.toggle('on',r>=3);
+  if(pl)pl.textContent=r+' / 3';
+  if(r>=3){
     document.querySelectorAll('.tc:not(.flipped)').forEach(function(c){c.classList.add('dim');});
     setTimeout(showDone,800);
   }
@@ -886,9 +889,9 @@ function retryCards(){
   var grid=document.getElementById('card-grid');
   grid.innerHTML='';grid.style.cssText='';grid.classList.remove('show');
   var pw=document.getElementById('prog-wrap');pw.style.cssText='display:none';
-  var pd1=document.getElementById('pd1');var pd2=document.getElementById('pd2');
-  if(pd1)pd1.classList.remove('on');if(pd2)pd2.classList.remove('on');
-  var pl=document.getElementById('prog-lbl');if(pl)pl.textContent='0 / 2';
+  var pd1=document.getElementById('pd1');var pd2=document.getElementById('pd2');var pd3=document.getElementById('pd3');
+  if(pd1)pd1.classList.remove('on');if(pd2)pd2.classList.remove('on');if(pd3)pd3.classList.remove('on');
+  var pl=document.getElementById('prog-lbl');if(pl)pl.textContent='0 / 3';
   deckDone=false;
   currentCards=TAROT.slice().sort(function(){return Math.random()-.5;}).slice(0,8).map(function(n){return{name:n};});
   document.getElementById('deck-area').style.display='flex';
