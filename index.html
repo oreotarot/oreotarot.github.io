@@ -81,7 +81,7 @@ input[type=password]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(167
 .lbtns{display:flex;gap:6px}
 .lbtns .btn{font-size:.65rem;padding:6px 10px}
 /* BOARD */
-#page-board{justify-content:flex-start;padding:16px 10px 32px}
+#page-board{justify-content:flex-start;padding:12px 10px 24px}
 .timer-bar{display:none;align-items:center;justify-content:center;gap:6px;padding:5px 14px;background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.2);border-radius:30px;font-family:'DM Mono',monospace;font-size:.7rem;color:var(--neon);letter-spacing:.1em;margin-bottom:14px;transition:all .3s}
 .timer-bar.urgent{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.35);color:#fca5a5;animation:up 1s ease-in-out infinite}
 @keyframes up{0%,100%{opacity:1}50%{opacity:.6}}
@@ -115,15 +115,15 @@ input[type=password]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(167
 .cface{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
 .cfront{transform:rotateY(180deg)}
 /* DONE */
-.done-wrap{display:none;flex-direction:column;align-items:center;width:100%;padding:0 16px}
+.done-wrap{display:none;flex-direction:column;align-items:center;width:100%;padding:4px 12px 0}
 .done-wrap.show{display:flex}
-.done-row{display:flex;gap:16px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}
-.done-card{width:clamp(90px,28vw,140px);border-radius:14px}
-.done-title{font-family:'Bebas Neue',cursive;font-size:clamp(1.4rem,5vw,1.8rem);letter-spacing:.08em;text-align:center;margin-bottom:8px}
-.done-sub{font-size:.88rem;color:var(--txt);opacity:.75;text-align:center;margin-bottom:24px;line-height:1.7}
-.cap-btn{display:flex;align-items:center;gap:8px;padding:13px 28px;background:rgba(167,139,250,.1);border:1px solid var(--acc);border-radius:12px;cursor:pointer;font-family:'DM Mono',monospace;font-size:.7rem;color:var(--acc);letter-spacing:.1em;transition:all .25s}
+.done-row{display:flex;gap:10px;justify-content:center;margin-bottom:14px;flex-wrap:nowrap}
+.done-card{width:clamp(80px,27vw,120px);border-radius:12px;flex-shrink:0}
+.done-title{font-family:'Bebas Neue',cursive;font-size:clamp(1.2rem,4.5vw,1.5rem);letter-spacing:.08em;text-align:center;margin-bottom:6px}
+.done-sub{font-size:.78rem;color:var(--txt);opacity:.75;text-align:center;margin-bottom:16px;line-height:1.6}
+.cap-btn{display:flex;align-items:center;gap:8px;padding:11px 24px;background:rgba(167,139,250,.1);border:1px solid var(--acc);border-radius:12px;cursor:pointer;font-family:'DM Mono',monospace;font-size:.68rem;color:var(--acc);letter-spacing:.1em;transition:all .25s}
 .cap-btn:hover{background:rgba(167,139,250,.2);box-shadow:0 0 20px rgba(167,139,250,.25)}
-.retry-btn{background:none;border:none;cursor:pointer;color:var(--mut);font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.1em;margin-top:14px;transition:color .2s}
+.retry-btn{background:none;border:none;cursor:pointer;color:var(--mut);font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.1em;margin-top:10px;transition:color .2s}
 .retry-btn:hover{color:var(--acc)}
 /* EXPIRED */
 #page-expired{text-align:center;padding:40px 24px}
@@ -209,106 +209,44 @@ input[type=password]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(167
   <div class="deck-area" id="deck-area">
     <div class="deck-wrap" id="deck-wrap" onclick="onDeckClick()">
 <svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;transform:rotate(-6deg);transform-origin:center center"><defs>
-<linearGradient id="cbg" x1="0" y1="0" x2="0.4" y2="1">
-  <stop offset="0%" stop-color="#3d2a7a"/>
-  <stop offset="50%" stop-color="#2a1f5e"/>
-  <stop offset="100%" stop-color="#341a6e"/>
+<linearGradient id="cbb_lay" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0%" stop-color="#c4b5fd" stop-opacity="0.5"/>
+  <stop offset="100%" stop-color="#818cf8" stop-opacity="0.4"/>
 </linearGradient>
-<linearGradient id="cbb" x1="0" y1="0" x2="1" y2="1">
-  <stop offset="0%" stop-color="#c4b5fd" stop-opacity="0.9"/>
-  <stop offset="50%" stop-color="#a78bfa" stop-opacity="0.5"/>
-  <stop offset="100%" stop-color="#818cf8" stop-opacity="0.8"/>
-</linearGradient>
-</defs><rect width="130" height="210" rx="14" fill="#2a1f5e"/>
-<rect width="130" height="210" rx="14" fill="url(#cbg)"/>
-<rect x="1" y="1" width="128" height="208" rx="13" fill="none" stroke="url(#cbb)" stroke-width="1.5"/>
-<rect x="6" y="6" width="118" height="198" rx="10" fill="none" stroke="#c4b5fd" stroke-width="0.4" stroke-opacity="0.18"/>
-<line x1="0" y1="70" x2="130" y2="70" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.3"/>
-<line x1="0" y1="140" x2="130" y2="140" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.3"/>
-<line x1="43" y1="0" x2="43" y2="210" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.22"/>
-<line x1="87" y1="0" x2="87" y2="210" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.22"/>
-<circle cx="43" cy="70" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
-<circle cx="87" cy="70" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
-<circle cx="43" cy="140" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
-<circle cx="87" cy="140" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
-<polygon points="65,20 68.5,30 79,30 71,37 74.5,47 65,40.5 55.5,47 59,37 51,30 61.5,30" fill="none" stroke="#e0d9ff" stroke-width="1.4" stroke-opacity="0.8" stroke-linejoin="round"/>
-<path d="M65,58 Q80,66 80,82 Q80,98 65,106 Q72,98 72,82 Q72,66 65,58Z" fill="#c4b5fd" fill-opacity="0.38"/>
-<text x="65" y="115" font-family="Georgia,serif" font-size="28" fill="#e8e0ff" fill-opacity="0.85" text-anchor="middle" dominant-baseline="central">&#9789;</text>
-<text x="65" y="178" font-family="Helvetica,sans-serif" font-size="7" fill="#c4b5fd" fill-opacity="0.55" text-anchor="middle" letter-spacing="3">TAROT</text>
-<line x1="25" y1="175" x2="42" y2="175" stroke="#c4b5fd" stroke-width="0.6" stroke-opacity="0.4"/>
-<line x1="88" y1="175" x2="105" y2="175" stroke="#c4b5fd" stroke-width="0.6" stroke-opacity="0.4"/></svg>
+</defs>
+<rect width="130" height="210" rx="14" fill="#1a1040" fill-opacity="0.85"/>
+<rect x="1" y="1" width="128" height="208" rx="13" fill="none" stroke="url(#cbb_lay)" stroke-width="1.2"/></svg>
 <svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;transform:rotate(3deg);transform-origin:center center"><defs>
-<linearGradient id="cbg" x1="0" y1="0" x2="0.4" y2="1">
-  <stop offset="0%" stop-color="#3d2a7a"/>
-  <stop offset="50%" stop-color="#2a1f5e"/>
-  <stop offset="100%" stop-color="#341a6e"/>
+<linearGradient id="cbb_lay" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0%" stop-color="#c4b5fd" stop-opacity="0.5"/>
+  <stop offset="100%" stop-color="#818cf8" stop-opacity="0.4"/>
 </linearGradient>
-<linearGradient id="cbb" x1="0" y1="0" x2="1" y2="1">
-  <stop offset="0%" stop-color="#c4b5fd" stop-opacity="0.9"/>
-  <stop offset="50%" stop-color="#a78bfa" stop-opacity="0.5"/>
-  <stop offset="100%" stop-color="#818cf8" stop-opacity="0.8"/>
-</linearGradient>
-</defs><rect width="130" height="210" rx="14" fill="#2a1f5e"/>
-<rect width="130" height="210" rx="14" fill="url(#cbg)"/>
-<rect x="1" y="1" width="128" height="208" rx="13" fill="none" stroke="url(#cbb)" stroke-width="1.5"/>
-<rect x="6" y="6" width="118" height="198" rx="10" fill="none" stroke="#c4b5fd" stroke-width="0.4" stroke-opacity="0.18"/>
-<line x1="0" y1="70" x2="130" y2="70" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.3"/>
-<line x1="0" y1="140" x2="130" y2="140" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.3"/>
-<line x1="43" y1="0" x2="43" y2="210" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.22"/>
-<line x1="87" y1="0" x2="87" y2="210" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.22"/>
-<circle cx="43" cy="70" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
-<circle cx="87" cy="70" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
-<circle cx="43" cy="140" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
-<circle cx="87" cy="140" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
-<polygon points="65,20 68.5,30 79,30 71,37 74.5,47 65,40.5 55.5,47 59,37 51,30 61.5,30" fill="none" stroke="#e0d9ff" stroke-width="1.4" stroke-opacity="0.8" stroke-linejoin="round"/>
-<path d="M65,58 Q80,66 80,82 Q80,98 65,106 Q72,98 72,82 Q72,66 65,58Z" fill="#c4b5fd" fill-opacity="0.38"/>
-<text x="65" y="115" font-family="Georgia,serif" font-size="28" fill="#e8e0ff" fill-opacity="0.85" text-anchor="middle" dominant-baseline="central">&#9789;</text>
-<text x="65" y="178" font-family="Helvetica,sans-serif" font-size="7" fill="#c4b5fd" fill-opacity="0.55" text-anchor="middle" letter-spacing="3">TAROT</text>
-<line x1="25" y1="175" x2="42" y2="175" stroke="#c4b5fd" stroke-width="0.6" stroke-opacity="0.4"/>
-<line x1="88" y1="175" x2="105" y2="175" stroke="#c4b5fd" stroke-width="0.6" stroke-opacity="0.4"/></svg>
+</defs>
+<rect width="130" height="210" rx="14" fill="#1a1040" fill-opacity="0.85"/>
+<rect x="1" y="1" width="128" height="208" rx="13" fill="none" stroke="url(#cbb_lay)" stroke-width="1.2"/></svg>
 <svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;transform:rotate(-1deg);transform-origin:center center"><defs>
-<linearGradient id="cbg" x1="0" y1="0" x2="0.4" y2="1">
-  <stop offset="0%" stop-color="#3d2a7a"/>
-  <stop offset="50%" stop-color="#2a1f5e"/>
-  <stop offset="100%" stop-color="#341a6e"/>
+<linearGradient id="cbb_lay" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0%" stop-color="#c4b5fd" stop-opacity="0.5"/>
+  <stop offset="100%" stop-color="#818cf8" stop-opacity="0.4"/>
 </linearGradient>
-<linearGradient id="cbb" x1="0" y1="0" x2="1" y2="1">
-  <stop offset="0%" stop-color="#c4b5fd" stop-opacity="0.9"/>
-  <stop offset="50%" stop-color="#a78bfa" stop-opacity="0.5"/>
-  <stop offset="100%" stop-color="#818cf8" stop-opacity="0.8"/>
-</linearGradient>
-</defs><rect width="130" height="210" rx="14" fill="#2a1f5e"/>
-<rect width="130" height="210" rx="14" fill="url(#cbg)"/>
-<rect x="1" y="1" width="128" height="208" rx="13" fill="none" stroke="url(#cbb)" stroke-width="1.5"/>
-<rect x="6" y="6" width="118" height="198" rx="10" fill="none" stroke="#c4b5fd" stroke-width="0.4" stroke-opacity="0.18"/>
-<line x1="0" y1="70" x2="130" y2="70" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.3"/>
-<line x1="0" y1="140" x2="130" y2="140" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.3"/>
-<line x1="43" y1="0" x2="43" y2="210" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.22"/>
-<line x1="87" y1="0" x2="87" y2="210" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.22"/>
-<circle cx="43" cy="70" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
-<circle cx="87" cy="70" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
-<circle cx="43" cy="140" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
-<circle cx="87" cy="140" r="1.5" fill="#e0d9ff" fill-opacity="0.75"/>
-<polygon points="65,20 68.5,30 79,30 71,37 74.5,47 65,40.5 55.5,47 59,37 51,30 61.5,30" fill="none" stroke="#e0d9ff" stroke-width="1.4" stroke-opacity="0.8" stroke-linejoin="round"/>
-<path d="M65,58 Q80,66 80,82 Q80,98 65,106 Q72,98 72,82 Q72,66 65,58Z" fill="#c4b5fd" fill-opacity="0.38"/>
-<text x="65" y="115" font-family="Georgia,serif" font-size="28" fill="#e8e0ff" fill-opacity="0.85" text-anchor="middle" dominant-baseline="central">&#9789;</text>
-<text x="65" y="178" font-family="Helvetica,sans-serif" font-size="7" fill="#c4b5fd" fill-opacity="0.55" text-anchor="middle" letter-spacing="3">TAROT</text>
-<line x1="25" y1="175" x2="42" y2="175" stroke="#c4b5fd" stroke-width="0.6" stroke-opacity="0.4"/>
-<line x1="88" y1="175" x2="105" y2="175" stroke="#c4b5fd" stroke-width="0.6" stroke-opacity="0.4"/></svg>
+</defs>
+<rect width="130" height="210" rx="14" fill="#1a1040" fill-opacity="0.85"/>
+<rect x="1" y="1" width="128" height="208" rx="13" fill="none" stroke="url(#cbb_lay)" stroke-width="1.2"/></svg>
 <svg viewBox="0 0 130 210" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%"><defs>
-<linearGradient id="cbg" x1="0" y1="0" x2="0.4" y2="1">
+<linearGradient id="cbg_main" x1="0" y1="0" x2="0.4" y2="1">
   <stop offset="0%" stop-color="#3d2a7a"/>
   <stop offset="50%" stop-color="#2a1f5e"/>
   <stop offset="100%" stop-color="#341a6e"/>
 </linearGradient>
-<linearGradient id="cbb" x1="0" y1="0" x2="1" y2="1">
+<linearGradient id="cbb_main" x1="0" y1="0" x2="1" y2="1">
   <stop offset="0%" stop-color="#c4b5fd" stop-opacity="0.9"/>
   <stop offset="50%" stop-color="#a78bfa" stop-opacity="0.5"/>
   <stop offset="100%" stop-color="#818cf8" stop-opacity="0.8"/>
 </linearGradient>
-</defs><rect width="130" height="210" rx="14" fill="#2a1f5e"/>
-<rect width="130" height="210" rx="14" fill="url(#cbg)"/>
-<rect x="1" y="1" width="128" height="208" rx="13" fill="none" stroke="url(#cbb)" stroke-width="1.5"/>
+</defs>
+<rect width="130" height="210" rx="14" fill="#2a1f5e"/>
+<rect width="130" height="210" rx="14" fill="url(#cbg_main)"/>
+<rect x="1" y="1" width="128" height="208" rx="13" fill="none" stroke="url(#cbb_main)" stroke-width="1.5"/>
 <rect x="6" y="6" width="118" height="198" rx="10" fill="none" stroke="#c4b5fd" stroke-width="0.4" stroke-opacity="0.18"/>
 <line x1="0" y1="70" x2="130" y2="70" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.3"/>
 <line x1="0" y1="140" x2="130" y2="140" stroke="#c4b5fd" stroke-width="0.5" stroke-opacity="0.3"/>
@@ -818,12 +756,13 @@ function makeBack(){
 
 function renderCards(){
   var grid=document.getElementById('card-grid');
-  grid.innerHTML='';grid.classList.remove('show');grid.style.cssText='';
+  grid.innerHTML='';
+  grid.classList.remove('show');
+  grid.style.visibility='hidden';grid.style.opacity='0';
   currentCards.forEach(function(c,i){
     var suit=getSuit(c.name);
     var sc=SC[suit]||'#c4b5fd';
-    var el=document.createElement('div');el.className='tc sp';
-    el.style.setProperty('--d',(i*.05)+'s');
+    var el=document.createElement('div');el.className='tc';
     el.style.setProperty('--sc',sc);
     var back=document.createElement('div');back.className='cface';back.innerHTML=makeBack();
     var front=document.createElement('div');front.className='cface cfront';front.innerHTML=makeFront(c.name,suit);
@@ -837,7 +776,16 @@ function renderCards(){
     el.addEventListener('animationend',function(){el.classList.remove('sp');el.classList.add('rdy');},{once:true});
     grid.appendChild(el);
   });
-  setTimeout(function(){grid.classList.add('show');updateProg();},50);
+  setTimeout(function(){
+    var cards=grid.querySelectorAll('.tc');
+    cards.forEach(function(el,i){
+      el.classList.add('sp');
+      el.style.setProperty('--d',(i*.06)+'s');
+    });
+    grid.style.visibility='';grid.style.opacity='';
+    grid.classList.add('show');
+    updateProg();
+  },120);
 }
 
 function updateProg(){
