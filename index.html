@@ -86,10 +86,10 @@ input[type=password]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(167
 .timer-bar.urgent{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.35);color:#fca5a5;animation:up 1s ease-in-out infinite}
 @keyframes up{0%,100%{opacity:1}50%{opacity:.6}}
 .btitle{font-family:'Bebas Neue',cursive;font-size:clamp(1.8rem,6vw,2.6rem);letter-spacing:.08em;text-align:center;margin-bottom:6px}
-.bsub{font-size:.88rem;color:var(--mut);text-align:center;letter-spacing:.04em;margin-bottom:28px}
+.bsub{font-size:.88rem;color:var(--mut);text-align:center;letter-spacing:.04em;margin-bottom:14px}
 /* DECK */
 .deck-area{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;flex:1;min-height:0}
-.deck-wrap{position:relative;width:160px;height:256px;cursor:pointer;margin-bottom:28px;filter:drop-shadow(0 0 28px rgba(124,58,237,.65));animation:df 3s ease-in-out infinite;transition:filter .3s;background:none!important;border:none!important;outline:none!important;box-shadow:none!important;overflow:hidden;border-radius:14px}
+.deck-wrap{position:relative;width:160px;height:256px;cursor:pointer;margin-bottom:28px;filter:drop-shadow(0 0 28px rgba(124,58,237,.65));animation:df 3s ease-in-out infinite;transition:filter .3s;background:none!important;border:none!important;outline:none!important;box-shadow:none!important;overflow:visible;border-radius:14px}
 .deck-wrap:hover{filter:drop-shadow(0 0 44px rgba(167,139,250,.9))}
 @keyframes df{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .dcta{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--acc);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;text-align:center;min-height:1.4em;display:block}
@@ -117,7 +117,7 @@ input[type=password]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(167
 /* DONE */
 .done-wrap{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;flex:1;padding:0 12px}
 .done-wrap.show{display:flex;flex:1}
-.done-row{display:flex;gap:10px;justify-content:center;margin-bottom:28px;flex-wrap:nowrap}
+.done-row{display:flex;gap:10px;justify-content:center;margin-bottom:18px;flex-wrap:nowrap}
 .done-card{width:clamp(80px,27vw,120px);border-radius:12px;flex-shrink:0}
 .done-title{font-family:'Bebas Neue',cursive;font-size:clamp(1.3rem,5vw,1.6rem);letter-spacing:.08em;text-align:center;margin-bottom:8px}
 .done-sub{font-size:.82rem;color:var(--txt);opacity:.75;text-align:center;margin-bottom:22px;line-height:1.75}
